@@ -266,7 +266,8 @@ async function saveMessage(role,content){
  const id=await ensureConversation(history.find(x=>x.role==='user')?.content||content);
  const {error}=await db.from('chat_messages').insert({conversation_id:id,owner_id:user.id,role,content});
  if(error) throw error;
- await db.from('chat_conversations').update({updated_at:new Date().toISOString()}).eq('id',id);
+ // Keep chat writes responsive; ordering can fall back to created_at until the timestamp update completes.
+ db.from('chat_conversations').update({updated_at:new Date().toISOString()}).eq('id',id).then(()=>{}).catch(()=>{});
 }
 async function loadConversations(){
  const list=document.getElementById('menuHistory');list.replaceChildren();
