@@ -231,6 +231,25 @@ footer{padding:4px 0 16px}
 .composer .send:disabled,.send:disabled{opacity:.72;cursor:wait;box-shadow:none}
 @media(max-width:520px){.composer .send,.send{flex-basis:54px;width:54px;height:54px;min-width:54px;border-radius:17px}}
 
+
+/* History long-press actions */
+.history-row{display:flex;align-items:center;gap:7px;min-width:0;border-radius:13px}
+.history-open{flex:1;min-width:0;width:100%;padding:11px 12px;border:1px solid transparent;border-radius:12px;background:transparent;color:#cdd7eb;text-align:left;font:inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.history-open:hover,.history-open[aria-current="true"]{background:#1a263b;border-color:#2e405f}
+.history-delete{display:none;flex:0 0 auto;padding:8px 10px;border:1px solid #714451;border-radius:10px;background:#2a1721;color:#ffd7df;font-size:12px;font-weight:650}
+.history-options-open .history-delete{display:block;animation:menu-in .16s ease-out}
+.history-options-open{background:#101827;border:1px solid #273651}
+
+
+/* Circular theme-matched send button with a genuinely bold arrow */
+.composer .send,.send{flex:0 0 54px;width:54px;height:54px;min-width:54px;padding:0;border:1px solid #b9c9ff70;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#70c2ff 0%,#829bff 46%,#ad86ff 100%);color:#091225;font-size:0;box-shadow:0 6px 20px #7894ff35,inset 0 1px 0 #ffffff55;transition:background .18s,transform .18s,box-shadow .18s}
+.composer .send:before,.send:before{content:'⬇';font-family:Arial,sans-serif;font-size:29px;font-weight:900;line-height:1;color:#091225;transform:translateY(-1px);-webkit-text-stroke:1px #091225}
+.composer .send:hover:not(:disabled),.send:hover:not(:disabled){background:linear-gradient(135deg,#88ceff 0%,#92a6ff 46%,#bd9aff 100%);box-shadow:0 9px 25px #829bff48,inset 0 1px 0 #ffffff66;transform:translateY(-2px)}
+.composer .send:active:not(:disabled),.send:active:not(:disabled){background:linear-gradient(135deg,#5ca8f0 0%,#7185ee 46%,#9670ed 100%);transform:scale(.95)}
+.composer .send:disabled:before,.send:disabled:before{content:'';width:18px;height:18px;border:2.5px solid #101529;border-right-color:transparent;border-radius:50%;animation:spin .7s linear infinite;transform:none;-webkit-text-stroke:0}
+.composer .send:disabled,.send:disabled{opacity:.72;cursor:wait;box-shadow:none}
+@media(max-width:520px){.composer .send,.send{flex-basis:54px;width:54px;height:54px;min-width:54px;border-radius:50%}}
+
 </style>
 <div class="profile-panel" id="profilePanel" hidden>
  <form class="profile-card" id="profileForm">
@@ -284,9 +303,18 @@ async function loadConversations(){
  if(error){list.innerHTML='<p class="menu-empty">Chat history could not load. Please try again.</p>';return;}
  if(!data?.length){list.innerHTML='<p class="menu-empty">No saved chats yet. Start a new chat and it will appear here.</p>';return;}
  for(const item of data){
-  const b=document.createElement('button');b.type='button';b.textContent=item.title||'Untitled chat';b.title=item.title||'Untitled chat';b.dataset.chatId=item.id;
+  const row=document.createElement('div');row.className='history-row';row.dataset.chatId=item.id;
+  const b=document.createElement('button');b.type='button';b.className='history-open';b.textContent=item.title||'Untitled chat';b.title=(item.title||'Untitled chat')+' — long-press for options';b.dataset.chatId=item.id;
   if(item.id===conversationId)b.setAttribute('aria-current','true');
-  b.addEventListener('click',async()=>{closeMenu();await openConversation(item.id);});list.appendChild(b);
+  b.addEventListener('click',async()=>{if(row.classList.contains('history-options-open')){row.classList.remove('history-options-open');return;}closeMenu();await openConversation(item.id);});
+  const del=document.createElement('button');del.type='button';del.className='history-delete';del.textContent='Delete';del.setAttribute('aria-label','Delete '+(item.title||'chat'));
+  del.addEventListener('click',async e=>{e.stopPropagation();if(!confirm('Delete this conversation and its messages? This cannot be undone.'))return;del.disabled=true;del.textContent='Deleting…';try{const {error:msgErr}=await db.from('chat_messages').delete().eq('conversation_id',item.id).eq('owner_id',user.id);if(msgErr)throw msgErr;const {error:chatErr}=await db.from('chat_conversations').delete().eq('id',item.id).eq('owner_id',user.id);if(chatErr)throw chatErr;if(conversationId===item.id){conversationId=null;history=[];messages.replaceChildren();welcome.hidden=false;}await loadConversations();}catch(err){del.disabled=false;del.textContent='Delete';alert('Could not delete chat. Check database permissions and try again.');}});
+  let holdTimer=null,held=false;
+  const startHold=()=>{held=false;clearTimeout(holdTimer);holdTimer=setTimeout(()=>{held=true;row.classList.add('history-options-open');},550);};
+  const endHold=()=>clearTimeout(holdTimer);
+  b.addEventListener('pointerdown',startHold);b.addEventListener('pointerup',endHold);b.addEventListener('pointerleave',endHold);b.addEventListener('pointercancel',endHold);
+  b.addEventListener('contextmenu',e=>{e.preventDefault();row.classList.add('history-options-open');});
+  row.append(b,del);list.appendChild(row);
  }
 }
 async function openConversation(id){
