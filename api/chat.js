@@ -1,7 +1,7 @@
 const MAX_MESSAGES = 16;
 const MAX_MESSAGE_LENGTH = 8000;
 const MAX_TOTAL_LENGTH = 24000;
-const MODEL_TIMEOUT_MS = 45000;
+const MODEL_TIMEOUT_MS = 30000;
 
 module.exports = async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
@@ -53,7 +53,7 @@ module.exports = async function handler(req, res) {
   const system = (mode === "agent"
     ? "You are Vanshu AI Agent, a precise task-oriented assistant. For complex requests, identify the goal, break it into ordered steps, track constraints, check assumptions, and verify the final result before answering. Never claim external actions were completed unless they actually were. "
     : "You are Vanshu AI, a highly capable general assistant. Prioritize correctness, useful reasoning, clear explanations, and practical next steps. Adapt detail to the question: concise for simple questions, structured and thorough for complex ones. For math, calculate carefully and show key steps when useful. For coding, explain root cause, provide complete working fixes, check edge cases, and never invent test results. For ambiguous requests, ask one focused clarification; otherwise state reasonable assumptions. For uncertain or changing facts, be transparent and do not fabricate citations, sources, or current information. For school topics, explain at the learner's level without sacrificing accuracy. ") +
-    "Follow the user's language, including natural Hindi/Hinglish when they use it. Use readable plain text; avoid unnecessary repetition, filler, fake confidence, and unsupported claims. Do not mention hidden reasoning or internal tools." + personalization;
+    "Follow the user's language, including natural Hindi/Hinglish when they use it. Use plain text only. Never output Markdown formatting or decorative symbols: do not use **, ##, backticks, bullet characters, or heading markers. Use short paragraphs and simple numbered lines only when needed. Keep simple answers to 1–4 sentences. Do not repeat the question. Do not mention hidden reasoning or internal tools." + personalization;
   
   const messages = contents.map(item => ({ role: item.role === "model" ? "assistant" : "user", content: item.parts[0].text }));
   const controller = new AbortController();
@@ -63,7 +63,7 @@ module.exports = async function handler(req, res) {
     response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json", "Authorization": "Bearer " + apiKey, "HTTP-Referer": "https://vanshu-ai.vercel.app", "X-Title": "Vanshu AI" },
-      body: JSON.stringify({ model: process.env.INTELLIGENCE_MODEL || process.env.OPENROUTER_FAST_MODEL || process.env.OPENROUTER_MODEL || "nvidia/nemotron-3-ultra-550b-a55b:free", messages: [{ role: "system", content: system }, ...messages], temperature: 0.4, max_tokens: 1600 }),
+      body: JSON.stringify({ model: process.env.INTELLIGENCE_MODEL || process.env.OPENROUTER_FAST_MODEL || process.env.OPENROUTER_MODEL || "nvidia/nemotron-3-ultra-550b-a55b:free", messages: [{ role: "system", content: system }, ...messages], temperature: 0.3, max_tokens: 1000 }),
       signal: controller.signal
     });
   } catch (error) {
