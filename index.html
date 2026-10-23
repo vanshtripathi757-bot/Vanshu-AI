@@ -312,7 +312,6 @@ async function loadConversations(){
   b.addEventListener('contextmenu',e=>{e.preventDefault();ignoreNextClick=true;row.classList.add('history-options-open');const rect=row.getBoundingClientRect();row.classList.toggle('history-options-above',rect.bottom>window.innerHeight-110);});
   row.append(b,del);list.appendChild(row);
  }
- }
 }
 async function openConversation(id){
  const {data,error}=await db.from('chat_messages').select('role,content').eq('conversation_id',id).order('created_at',{ascending:true});
