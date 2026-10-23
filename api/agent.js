@@ -1,5 +1,5 @@
 const MAX_MESSAGES = 12;
-const MAX_TOOL_ROUNDS = 2;
+const MAX_TOOL_ROUNDS = 3;
 const MAX_TEXT = 6000;
 
 function calculate(expression) {
@@ -89,6 +89,10 @@ module.exports = async function handler(req, res) {
     const data=await response.json(); const message=data && data.choices && data.choices[0] && data.choices[0].message || {};
     const calls=Array.isArray(message.tool_calls) ? message.tool_calls : [];
     if (!calls.length) { finalText=String(message.content || "").trim(); break; }
+    if (round === MAX_TOOL_ROUNDS - 1) {
+      finalText = String(message.content || "").trim() || "I could not finish a reliable answer within the available steps. Please try again shortly; I will not invent sources.";
+      break;
+    }
     messages.push(message);
     for (const call of calls) {
       let args={}; try {args=JSON.parse(call.function && call.function.arguments || "{}");} catch {}
