@@ -75,8 +75,16 @@ module.exports = async function handler(req, res) {
     ? (process.env.AGENTIC_MODEL || process.env.OPENROUTER_AGENT_MODEL || process.env.OPENROUTER_FAST_MODEL || process.env.OPENROUTER_MODEL || "nvidia/nemotron-3.5-lightning:free")
     : (process.env.OPENROUTER_FAST_MODEL || process.env.OPENROUTER_MODEL || "nvidia/nemotron-3-ultra-550b-a55b:free");
   const executed = []; let finalText = "";
+  // Keep multi-round agent work inside the configured 60-second serverless limit.
+  const deadline = Date.now() + 52000;
   for (let round=0; round<MAX_TOOL_ROUNDS; round++) {
-    const controller = new AbortController(); const timer = setTimeout(() => controller.abort(), 45000);
+    if (Date.now() + 3000 >= deadline) {
+      finalText = String(finalText || "I reached the execution time limit before I could finish reliably. Please narrow the task and try again.").trim();
+      break;
+    }
+    const controller = new AbortController();
+    const remainingMs = deadline - Date.now() - 1500;
+    const timer = setTimeout(() => controller.abort(), Math.min(45000, remainingMs));
     let response;
     try {
       const requestTools = round === MAX_TOOL_ROUNDS - 1
