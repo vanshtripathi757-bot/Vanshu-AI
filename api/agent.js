@@ -100,7 +100,26 @@ module.exports = async function handler(req, res) {
     let data; try { data = await response.json(); } catch { return res.status(502).json({error:"OpenRouter returned an unreadable response."}); }
     const message=data && data.choices && data.choices[0] && data.choices[0].message || {};
     const calls=Array.isArray(message.tool_calls) ? message.tool_calls : [];
-    if (!calls.length) { finalText=String(message.content || "").trim(); break; }
+    if (!calls.length) {
+      finalText=String(message.content || "").trim();
+      // Preserve grounded web citations as plain-text source links for the chat UI.
+      if (wantsSearch && Array.isArray(message.annotations)) {
+        const seen = new Set();
+        const sources = [];
+        for (const annotation of message.annotations) {
+          if (!annotation || annotation.type !== "url_citation") continue;
+          const citation = annotation.url_citation || {};
+          const url = typeof citation.url === "string" ? citation.url : "";
+          const title = typeof citation.title === "string" ? citation.title.trim() : "";
+          if (!/^https?:\/\//i.test(url) || seen.has(url)) continue;
+          seen.add(url);
+          sources.push((title || url) + " — " + url);
+          if (sources.length >= 5) break;
+        }
+        if (sources.length) finalText += "\n\nSources:\n" + sources.join("\n");
+      }
+      break;
+    }
     if (round === MAX_TOOL_ROUNDS - 1) {
       finalText = String(message.content || "").trim() || "I could not finish a reliable answer within the available steps. Please try again shortly; I will not invent sources.";
       break;
