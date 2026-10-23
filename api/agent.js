@@ -116,7 +116,21 @@ module.exports = async function handler(req, res) {
     }
   }
   if (!finalText) finalText="I could not complete this agent run within the tool-step limit. Please narrow the task and try again.";
-  finalText = finalText.replace(/^#{1,6}[ \t]*/gm, "").replace(/\*\*/g, "").replace(/\$/g, "").replace(/verified (?:by|with) the calculator tool\.?/gi, "").replace(/\(?verified with calculator tool\)?/gi, "").replace(/Tools used:.*$/gim, "").replace(/Calculator:.*$/gim, "").replace(/Created a plan with.*$/gim, "").replace(/\n{3,}/g, "\n\n").trim();
+  finalText = finalText
+    .replace(/^#{1,6}[ \\t]*/gm, "")
+    .replace(/\\*{1,3}([^*\\n]+)\\*{1,3}/g, "$1")
+    .replace(/_{2}([^_\\n]+)_{2}/g, "$1")
+    .replace(/\x60{1,3}([^\x60]*?)\x60{1,3}/g, "$1")
+    .replace(/^[ \\t]*[-*+•][ \\t]+/gm, "")
+    .replace(/^[ \\t]*>+[ \\t]?/gm, "")
+    .replace(/\\$/g, "")
+    .replace(/verified (?:by|with) the calculator tool\\.?/gi, "")
+    .replace(/\\(?verified with calculator tool\\)?/gi, "")
+    .replace(/Tools used:.*$/gim, "")
+    .replace(/Calculator:.*$/gim, "")
+    .replace(/Created a plan with.*$/gim, "")
+    .replace(/\\n{3,}/g, "\\n\\n")
+    .trim();
   // Keep internal tool execution details out of the user-facing answer.
   res.status(200); res.setHeader("Content-Type","text/event-stream; charset=utf-8"); res.setHeader("Cache-Control","no-cache, no-transform"); res.setHeader("Connection","keep-alive"); res.setHeader("X-Accel-Buffering","no");
   res.write("data: "+JSON.stringify({candidates:[{content:{parts:[{text:finalText}]}}]})+"\n\n"); res.write("data: [DONE]\n\n"); return res.end();
