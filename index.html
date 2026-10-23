@@ -16,8 +16,29 @@
  </form>
 </div>
 
+
+<style>
+.profile-panel{position:fixed;inset:0;z-index:30;display:grid;place-items:center;box-sizing:border-box;padding:16px;background:#060912d9;backdrop-filter:blur(18px);overflow:auto;animation:authfade .25s ease-out}.profile-panel[hidden]{display:none!important}.profile-card{width:100%;max-width:480px;max-height:calc(100dvh - 32px);overflow:auto;padding:clamp(20px,5vw,30px);border:1px solid #394768;border-radius:26px;background:linear-gradient(145deg,#172137,#0b111d);box-shadow:0 30px 100px #0009;animation:authrise .35s cubic-bezier(.2,.8,.2,1)}.profile-kicker{display:inline-flex;align-items:center;gap:7px;padding:6px 10px;border:1px solid #394768;border-radius:99px;color:#b9c9ff;font-size:12px;margin-bottom:16px}.profile-card h2{font-size:clamp(25px,6vw,32px);line-height:1.15;letter-spacing:-.7px;margin:0 0 9px}.profile-card .profile-sub{color:#9ba9bf;margin:0 0 22px}.profile-field{display:block;margin:16px 0 6px;font-size:13px;font-weight:650;color:#dce6f8}.profile-card input,.profile-card select{width:100%;min-width:0;padding:13px 14px;border:1px solid #35425c;border-radius:12px;background:#0a101b;color:#eef3ff;font:inherit;outline:none}.profile-card input:focus,.profile-card select:focus{border-color:#83a9ff;box-shadow:0 0 0 3px #83a9ff20}.profile-actions{display:flex;gap:10px;margin-top:22px}.profile-actions button{flex:1;padding:13px;border:0;border-radius:12px;font:inherit;font-weight:700;cursor:pointer;transition:transform .15s,opacity .15s}.profile-actions button:active{transform:scale(.98)}.profile-save{background:linear-gradient(120deg,#80baff,#b39aff);color:#0a1020}.profile-skip{background:#202c43;color:#dce6f8;border:1px solid #394768!important}.profile-note{font-size:12px;color:#8f9cb2;margin-top:14px}.profile-error{font-size:13px;color:#ffd5dc;margin-top:12px}.account-profile{display:flex;align-items:center;gap:9px;min-width:0;max-width:48%}.profile-avatar{width:36px;height:36px;flex:0 0 36px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(135deg,#80baff,#b39aff);color:#09111e;font-weight:800}.profile-name-wrap{min-width:0}.profile-name{display:block;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:700}.profile-edit{display:block;border:0;background:transparent;color:#9aafd8;padding:0;font-size:11px;text-align:left}.account-profile #signOutBtn{flex:0 0 auto;background:#101827;border:1px solid #34415a;border-radius:10px;color:#aab7cb;padding:7px 9px;font-size:12px}@media(max-width:520px){header{gap:8px}.account-profile{max-width:58%;gap:7px}.profile-name{max-width:94px}.status{padding:6px 8px;font-size:11px;max-width:112px}.status span:last-child{overflow-wrap:anywhere}.brand{gap:8px;font-size:15px}.logo{width:34px;height:34px}.profile-actions{flex-direction:column}.profile-card{border-radius:22px}}
+</style>
+<div class="profile-panel" id="profilePanel" hidden>
+ <form class="profile-card" id="profileForm">
+  <div class="profile-kicker">✦ PERSONALIZE YOUR SPACE</div>
+  <h2>Let’s make Vanshu AI yours.</h2>
+  <p class="profile-sub">Choose how your assistant should address you. You can update these details later.</p>
+  <label class="profile-field" for="profileName">What should I call you?</label>
+  <input id="profileName" maxlength="40" autocomplete="nickname" placeholder="Your display name" required>
+  <label class="profile-field" for="profileAge">Age range</label>
+  <select id="profileAge" required><option value="" disabled selected>Choose an age range</option><option>13–15</option><option>16–17</option><option>18–24</option><option>25+</option><option>Prefer not to say</option></select>
+  <label class="profile-field" for="profileProfession">What do you do?</label>
+  <select id="profileProfession" required><option value="" disabled selected>Choose your role</option><option>Student</option><option>Developer</option><option>Designer / video editor</option><option>Content creator</option><option>Business / entrepreneur</option><option>Other</option><option>Prefer not to say</option></select>
+  <div class="profile-error" id="profileError" role="status"></div>
+  <div class="profile-actions"><button class="profile-save" id="profileSave" type="submit">Save profile <span aria-hidden="true">→</span></button></div>
+  <p class="profile-note">Your profile is private to your account. Age is collected as a range, not an exact birth date.</p>
+ </form>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-</head><body><div class="app"><header><div class="brand"><div class="logo">V</div><span>Vanshu AI</span></div><div class="status"><span class="dot"></span><span id="statusText">Assistant ready</span></div><div id="accountBar" hidden><span id="accountEmail"></span><button id="signOutBtn" type="button">Sign out</button></div></header><main>
+</head><body><div class="app"><header><div class="brand"><div class="logo">V</div><span>Vanshu AI</span></div><div class="status"><span class="dot"></span><span id="statusText">Assistant ready</span></div><div id="accountBar" class="account-profile" hidden><div class="profile-avatar" id="profileAvatar">V</div><div class="profile-name-wrap"><span class="profile-name" id="profileDisplayName">Your profile</span><button class="profile-edit" id="editProfileBtn" type="button">Edit profile</button></div><button id="signOutBtn" type="button">Sign out</button></div></header><main>
 <section class="welcome" id="welcome"><div class="orb">✦</div><h1>Think it. Ask it.<br><span class="gradient">Build with AI.</span></h1><p class="subtitle">Your personal AI assistant for learning, coding, ideas, and everyday questions.</p><div class="suggestions"><button class="suggestion" data-prompt="Explain a difficult topic to me in simple words.">Learn something<small>Break down a tricky concept</small></button><button class="suggestion" data-prompt="Help me plan and build a small web app step by step.">Build a project<small>Turn an idea into a plan</small></button><button class="suggestion" data-prompt="Give me a challenging maths puzzle and let me solve it.">Challenge me<small>Try a logic or maths puzzle</small></button><button class="suggestion" data-prompt="Help me improve this code and explain why: ">Improve my code<small>Debug, explain, and refine</small></button></div></section>
 <div id="messages" aria-live="polite"></div><div class="composer-wrap"><div class="toolbar"><span>Ask Vanshu AI anything</span><button class="clear" id="clearBtn" type="button">New chat ↺</button></div><form class="composer" id="chatForm"><textarea id="prompt" rows="1" maxlength="8000" placeholder="Message Vanshu AI..." aria-label="Message Vanshu AI"></textarea><button class="send" id="sendBtn" type="submit" aria-label="Send message">↑</button></form><div class="footnote">AI can make mistakes. Verify important information.</div></div></main><footer>Vanshu AI · Powered by Gemini</footer></div>
 <script>
@@ -26,8 +47,8 @@ const SUPABASE_URL = "https://whogvqksufltywnexkyx.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_7bCvEzVBaTqL5spkLLKQ2A_xpRBCYQg";
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 const form=document.getElementById('chatForm'),input=document.getElementById('prompt'),messages=document.getElementById('messages'),welcome=document.getElementById('welcome'),sendBtn=document.getElementById('sendBtn'),statusText=document.getElementById('statusText');
-const authPanel=document.getElementById('authPanel'),authForm=document.getElementById('authForm'),authEmail=document.getElementById('authEmail'),authPassword=document.getElementById('authPassword'),authError=document.getElementById('authError'),accountBar=document.getElementById('accountBar'),accountEmail=document.getElementById('accountEmail');
-let history=[],busy=false,user=null,conversationId=null;
+const authPanel=document.getElementById('authPanel'),authForm=document.getElementById('authForm'),authEmail=document.getElementById('authEmail'),authPassword=document.getElementById('authPassword'),authError=document.getElementById('authError'),accountBar=document.getElementById('accountBar');\nconst profilePanel=document.getElementById('profilePanel'),profileForm=document.getElementById('profileForm'),profileNameInput=document.getElementById('profileName'),profileAgeInput=document.getElementById('profileAge'),profileProfessionInput=document.getElementById('profileProfession'),profileError=document.getElementById('profileError'),profileSave=document.getElementById('profileSave'),profileDisplayName=document.getElementById('profileDisplayName'),profileAvatar=document.getElementById('profileAvatar');
+let history=[],busy=false,user=null,conversationId=null,profile=null;
 function scrollToLatest(){requestAnimationFrame(()=>{const last=messages.lastElementChild;if(last)last.scrollIntoView({behavior:'smooth',block:'end'});});}
 function addMessage(role,text,extra=''){const row=document.createElement('div');row.className='message '+role;const avatar=document.createElement('div');avatar.className='avatar';avatar.textContent=role==='user'?'YOU':'V';const bubble=document.createElement('div');bubble.className='bubble '+extra;bubble.textContent=text;row.append(avatar,bubble);messages.appendChild(row);scrollToLatest();return bubble}
 function resize(){input.style.height='auto';input.style.height=Math.min(input.scrollHeight,160)+'px'}
@@ -61,8 +82,27 @@ async function openConversation(id){
  conversationId=id;history=(data||[]).map(m=>({role:m.role,content:m.content}));messages.replaceChildren();welcome.hidden=history.length>0;
  history.forEach(m=>addMessage(m.role,m.content));statusText.textContent='Chat history loaded';
 }
+function paintProfile(p){profile=p;const name=p?.display_name||'Your profile';profileDisplayName.textContent=name;profileAvatar.textContent=(name.trim()[0]||'V').toUpperCase();profileDisplayName.title=name;}
+function openProfileEditor(){profileError.textContent='';profileNameInput.value=profile?.display_name||'';profileAgeInput.value=profile?.age_range||'';profileProfessionInput.value=profile?.profession||'';profilePanel.hidden=false;}
+async function loadProfile(){
+ const {data,error}=await db.from('chat_profiles').select('display_name,age_range,profession').eq('user_id',user.id).maybeSingle();
+ if(error) throw error;
+ if(data){paintProfile(data);profilePanel.hidden=true;}else{paintProfile({display_name:'Your profile'});openProfileEditor();}
+}
+profileForm.addEventListener('submit',async e=>{
+ e.preventDefault();if(!user)return;
+ const display_name=profileNameInput.value.trim(),age_range=profileAgeInput.value,profession=profileProfessionInput.value;
+ if(!display_name||!age_range||!profession){profileError.textContent='Please complete all three fields.';return;}
+ profileSave.disabled=true;profileSave.textContent='Saving…';profileError.textContent='';
+ try{
+  const {data,error}=await db.from('chat_profiles').upsert({user_id:user.id,display_name,age_range,profession,updated_at:new Date().toISOString()},{onConflict:'user_id'}).select('display_name,age_range,profession').single();
+  if(error)throw error;paintProfile(data);profilePanel.hidden=true;statusText.textContent='Profile saved';await loadConversations();
+ }catch(err){profileError.textContent=err.message||'Could not save profile. Please try again.';}
+ finally{profileSave.disabled=false;profileSave.innerHTML='Save profile <span aria-hidden="true">→</span>';}
+});
+document.getElementById('editProfileBtn').addEventListener('click',openProfileEditor);
 async function onSignedIn(session){
- user=session.user;authPanel.hidden=true;accountBar.hidden=false;accountEmail.textContent=user.email||'Signed in';await loadConversations();statusText.textContent='Assistant ready';
+ user=session.user;authPanel.hidden=true;accountBar.hidden=false;statusText.textContent='Loading profile…';try{await loadProfile();}catch(err){profileError.textContent='Profile setup is temporarily unavailable: '+(err.message||'unknown error');profilePanel.hidden=false;}await loadConversations();statusText.textContent='Assistant ready';
 }
 const signInBtn=document.getElementById('signInBtn'),signUpBtn=document.getElementById('signUpBtn');
 function setAuthBusy(busy,label){signInBtn.disabled=busy;signUpBtn.disabled=busy;authForm.classList.toggle('is-busy',busy);signInBtn.textContent=busy?label:'Sign in';signUpBtn.textContent=busy?'Please wait…':'Create account';}
@@ -97,7 +137,7 @@ document.querySelectorAll('[data-prompt]').forEach(b=>b.addEventListener('click'
 form.addEventListener('submit',async e=>{
  e.preventDefault();const text=input.value.trim();if(!text||busy)return;
  if(!user){showAuth('Sign in to start saving chats.');return;}
- welcome.hidden=true;addMessage('user',text);input.value='';resize();history.push({role:'user',content:text});busy=true;sendBtn.disabled=true;statusText.textContent='Thinking…';const pending=addMessage('assistant','Vanshu AI is thinking…','typing');
+ welcome.hidden=true;addMessage('user',text);input.value='';resize();history.push({role:'user',content:text});busy=true;sendBtn.disabled=true;statusText.textContent='Thinking…';const pending=addMessage('assistant','Generating a response…','typing');pending.setAttribute('aria-label','AI is generating a response');
  try{
   await saveMessage('user',text);
   const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:history.slice(-16)})});
