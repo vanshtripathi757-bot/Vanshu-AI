@@ -422,7 +422,12 @@ document.querySelectorAll('[data-prompt]').forEach(b=>b.addEventListener('click'
 form.addEventListener('submit',async e=>{
  e.preventDefault();const text=input.value.trim();if(!text||busy)return;
  if(!user){showAuth('Sign in to start saving chats.');return;}
- welcome.hidden=true;addMessage('user',text);input.value='';resize();history.push({role:'user',content:text});busy=true;sendBtn.disabled=true;statusText.textContent='Thinking…';const pending=addMessage('assistant','Vanshu AI is thinking','typing');pending.setAttribute('aria-label','AI is generating a response');
+ welcome.hidden=true;addMessage('user',text);input.value='';resize();history.push({role:'user',content:text});busy=true;sendBtn.disabled=true;const researchRequest=agentMode&&/search|research|latest|current|recent|sources|source links|web|news|today|this week/i.test(text);
+ const topicLabel=text.replace(/\s+/g,' ').slice(0,90);
+ statusText.textContent=researchRequest?'Searching the web…':'Thinking…';
+ const pending=addMessage('assistant',researchRequest?'Searching for: '+topicLabel+'\nLooking for recent information and source links…':'Vanshu AI is thinking','typing');pending.setAttribute('aria-label',researchRequest?'Searching for information and sources':'AI is generating a response');
+ let progressTimer=null;
+ if(researchRequest){progressTimer=setTimeout(()=>{if(busy&&pending.className.includes('typing'))pending.textContent='Searching for: '+topicLabel+'\nChecking available web results and preparing a sourced answer…';},1800);}
  const requestStartedAt=performance.now();let firstTokenAt=null;let responseTotalMs=null;
  try{
   const saveUserPromise=saveMessage('user',text).then(()=>({ok:true}),error=>({ok:false,error}));
@@ -438,7 +443,7 @@ form.addEventListener('submit',async e=>{
   responseTotalMs=performance.now()-requestStartedAt;
   if(!answer.trim())throw new Error('The AI did not return a response. Please try again.');
   pending.className='bubble';pending.textContent=answer;history.push({role:'assistant',content:answer});const savedUser=await saveUserPromise;if(!savedUser.ok)throw savedUser.error;await saveMessage('assistant',answer);await loadConversations();const firstTokenLabel=firstTokenAt===null?'n/a':((firstTokenAt-requestStartedAt)/1000).toFixed(1)+'s';const totalLabel=(responseTotalMs/1000).toFixed(1)+'s';statusText.textContent='Ready · first text '+firstTokenLabel+' · response '+totalLabel;
- }catch(err){pending.className='bubble error';pending.textContent=err.message||'Something went wrong. Please try again.';if(history.length&&history[history.length-1].role==='user')history.pop();statusText.textContent='Could not save or send';}
+ }catch(err){if(progressTimer)clearTimeout(progressTimer);pending.className='bubble error';pending.textContent=err.message||'Something went wrong. Please try again.';if(history.length&&history[history.length-1].role==='user')history.pop();statusText.textContent='Could not save or send';}
  finally{busy=false;sendBtn.disabled=false;input.focus();}
 });
 (async()=>{const {data,error}=await db.auth.getSession();if(error){showAuth('Could not check sign-in. Reload the page.','error');return;}if(data.session){await onSignedIn(data.session);}else{showAuth();}db.auth.onAuthStateChange((_event,session)=>{if(session&&!user){setTimeout(()=>{if(session&&!user)onSignedIn(session).catch(()=>showAuth('Signed in, but chat history could not load. Refresh and try again.','error'));},0);}});})();
