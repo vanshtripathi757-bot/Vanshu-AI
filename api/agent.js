@@ -36,7 +36,7 @@ module.exports = async function handler(req, res) {
     try {
       const expression = mathMatch[0].trim();
       const value = calculate(expression);
-      const answer = "Calculator result: " + expression + " = " + value + "\n\nI evaluated the arithmetic locally, so this does not use API credits.";
+      const answer = "Calculator result: " + expression + " = " + value;
       res.status(200); res.setHeader("Content-Type","text/event-stream; charset=utf-8"); res.setHeader("Cache-Control","no-cache, no-transform"); res.setHeader("Connection","keep-alive"); res.setHeader("X-Accel-Buffering","no");
       res.write("data: "+JSON.stringify({candidates:[{content:{parts:[{text:answer}]}}]})+"\n\n"); res.write("data: [DONE]\n\n"); return res.end();
     } catch {}
