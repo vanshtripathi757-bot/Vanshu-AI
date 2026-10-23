@@ -172,6 +172,32 @@ footer{padding:4px 0 16px}
   background:linear-gradient(135deg,#559eea 0%,#6f7ce9 48%,#9068e8 100%);
 }
 
+
+/* Match the supplied reference: charcoal circular button with a bold white down arrow */
+.composer .send,.send{
+  flex:0 0 54px;width:54px;height:54px;min-width:54px;
+  padding:0;border:0;border-radius:50%;
+  display:grid;place-items:center;
+  background:#30343b;color:#fff;
+  font-size:0;box-shadow:none;
+  transition:background .18s,transform .18s;
+}
+.composer .send:before,.send:before{
+  content:'↓';font-family:Arial,sans-serif;font-size:36px;font-weight:500;
+  line-height:1;color:#fff;transform:translateY(-2px);transition:transform .18s;
+}
+.composer .send:hover:not(:disabled),.send:hover:not(:disabled){
+  background:#3b414a;box-shadow:none;filter:none;transform:scale(1.04);
+}
+.composer .send:hover:not(:disabled):before,.send:hover:not(:disabled):before{transform:translateY(0)}
+.composer .send:active:not(:disabled),.send:active:not(:disabled){background:#24282e;transform:scale(.96)}
+.composer .send:disabled:before,.send:disabled:before{
+  content:'';width:18px;height:18px;border:2px solid #fff;border-right-color:transparent;
+  border-radius:50%;animation:spin .7s linear infinite;transform:none;
+}
+.composer .send:disabled,.send:disabled{opacity:.72;cursor:wait;box-shadow:none}
+@media(max-width:520px){.composer .send,.send{flex-basis:54px;width:54px;height:54px;min-width:54px;border-radius:50%}}
+
 </style>
 <div class="profile-panel" id="profilePanel" hidden>
  <form class="profile-card" id="profileForm">
