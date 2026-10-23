@@ -71,8 +71,8 @@ module.exports = async function handler(req, res) {
   const wantsSearch = /search|research|latest|current|recent|sources|source links|web|news|today|this week/i.test(lastText);
   const isComplexTask = wantsSearch || /\b(code|coding|debug|fix|build|create|website|app|project|multi[- ]?step|analy[sz]e|compare|plan|research)\b/i.test(lastText);
   const baseModel = isComplexTask
-    ? (process.env.AGENTIC_MODEL || process.env.OPENROUTER_AGENT_MODEL || process.env.OPENROUTER_MODEL || "openrouter/free")
-    : (process.env.OPENROUTER_FAST_MODEL || process.env.OPENROUTER_MODEL || "openrouter/free");
+    ? (process.env.AGENTIC_MODEL || process.env.OPENROUTER_AGENT_MODEL || process.env.OPENROUTER_MODEL || "nvidia/nemotron-3-ultra-550b-a55b:free")
+    : (process.env.OPENROUTER_FAST_MODEL || process.env.OPENROUTER_MODEL || "nvidia/nemotron-3-ultra-550b-a55b:free");
   const executed = []; let finalText = "";
   for (let round=0; round<MAX_TOOL_ROUNDS; round++) {
     const controller = new AbortController(); const timer = setTimeout(() => controller.abort(), 45000);
@@ -83,7 +83,7 @@ module.exports = async function handler(req, res) {
         : wantsSearch && round === 0
           ? [...tools, {type:"openrouter:web_search",parameters:{engine:"auto",max_results:3,max_total_results:5,max_uses:1,search_context_size:"low"}}]
           : tools;
-      const requestBody = {model:baseModel,messages:[{role:"system",content:system},...messages],tools:requestTools,tool_choice:requestTools.length ? "auto" : "none",temperature:0.3,max_tokens:1400,max_tool_calls:requestTools.length ? (wantsSearch ? 1 : 3) : undefined};
+      const requestBody = {model:baseModel,messages:[{role:"system",content:system},...messages],tools:requestTools,tool_choice:requestTools.length ? "auto" : "none",temperature:0.25,max_tokens:2200,max_tool_calls:requestTools.length ? (wantsSearch ? 1 : 3) : undefined};
       response = await fetch("https://openrouter.ai/api/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiKey,"HTTP-Referer":"https://vanshu-ai.vercel.app","X-Title":"Vanshu AI"},body:JSON.stringify(requestBody),signal:controller.signal});
     } catch (e) { clearTimeout(timer); return res.status(503).json({error:e && e.name==="AbortError" ? "OpenRouter request timed out." : "Could not reach OpenRouter."}); }
     clearTimeout(timer);
