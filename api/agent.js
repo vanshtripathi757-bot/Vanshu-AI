@@ -67,13 +67,13 @@ module.exports = async function handler(req, res) {
     : (process.env.OPENROUTER_FAST_MODEL || process.env.OPENROUTER_MODEL || "openrouter/auto");
   const executed = []; let finalText = "";
   for (let round=0; round<MAX_TOOL_ROUNDS; round++) {
-    const controller = new AbortController(); const timer = setTimeout(() => controller.abort(), 20000);
+    const controller = new AbortController(); const timer = setTimeout(() => controller.abort(), 45000);
     let response;
     try {
       const requestTools = wantsSearch
-        ? [...tools, {type:"openrouter:web_search",parameters:{engine:"auto",max_results:5}}]
+        ? [...tools, {type:"openrouter:web_search",parameters:{engine:"auto",max_results:3,max_total_results:5,max_uses:1,search_context_size:"low"}}]
         : tools;
-      const requestBody = {model:baseModel,messages:[{role:"system",content:system},...messages],tools:requestTools,tool_choice:"auto",temperature:0.3,max_tokens:1000,max_tool_calls:wantsSearch ? 2 : 3};
+      const requestBody = {model:baseModel,messages:[{role:"system",content:system},...messages],tools:requestTools,tool_choice:"auto",temperature:0.3,max_tokens:wantsSearch ? 800 : 1000,max_tool_calls:wantsSearch ? 1 : 3};
       response = await fetch("https://openrouter.ai/api/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiKey,"HTTP-Referer":"https://vanshu-ai.vercel.app","X-Title":"Vanshu AI"},body:JSON.stringify(requestBody),signal:controller.signal});
     } catch (e) { clearTimeout(timer); return res.status(503).json({error:e && e.name==="AbortError" ? "OpenRouter request timed out." : "Could not reach OpenRouter."}); }
     clearTimeout(timer);
