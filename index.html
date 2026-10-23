@@ -198,6 +198,39 @@ footer{padding:4px 0 16px}
 .composer .send:disabled,.send:disabled{opacity:.72;cursor:wait;box-shadow:none}
 @media(max-width:520px){.composer .send,.send{flex-basis:54px;width:54px;height:54px;min-width:54px;border-radius:50%}}
 
+
+/* Final send control: bold arrow + Vanshu AI blue/violet gradient */
+.composer .send,.send{
+  flex:0 0 54px;width:54px;height:54px;min-width:54px;
+  padding:0;border:1px solid #b9c9ff66;border-radius:17px;
+  display:grid;place-items:center;
+  background:linear-gradient(135deg,#70c2ff 0%,#829bff 46%,#ad86ff 100%);
+  color:#081121;font-size:0;
+  box-shadow:0 6px 20px #7894ff35,inset 0 1px 0 #ffffff55;
+  transition:background .18s,transform .18s,box-shadow .18s,filter .18s;
+}
+.composer .send:before,.send:before{
+  content:'↓';font-family:Arial,sans-serif;font-size:34px;font-weight:900;
+  line-height:1;color:#091225;transform:translateY(-2px);
+  -webkit-text-stroke:.7px #091225;
+}
+.composer .send:hover:not(:disabled),.send:hover:not(:disabled){
+  background:linear-gradient(135deg,#88ceff 0%,#92a6ff 46%,#bd9aff 100%);
+  box-shadow:0 9px 25px #829bff48,inset 0 1px 0 #ffffff66;
+  filter:none;transform:translateY(-2px);
+}
+.composer .send:active:not(:disabled),.send:active:not(:disabled){
+  background:linear-gradient(135deg,#5ca8f0 0%,#7185ee 46%,#9670ed 100%);
+  box-shadow:0 3px 10px #7894ff25;transform:scale(.95);
+}
+.composer .send:disabled:before,.send:disabled:before{
+  content:'';width:18px;height:18px;border:2.5px solid #101529;
+  border-right-color:transparent;border-radius:50%;animation:spin .7s linear infinite;
+  transform:none;-webkit-text-stroke:0;
+}
+.composer .send:disabled,.send:disabled{opacity:.72;cursor:wait;box-shadow:none}
+@media(max-width:520px){.composer .send,.send{flex-basis:54px;width:54px;height:54px;min-width:54px;border-radius:17px}}
+
 </style>
 <div class="profile-panel" id="profilePanel" hidden>
  <form class="profile-card" id="profileForm">
