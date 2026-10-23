@@ -210,7 +210,7 @@ footer{display:none}
     <section class="welcome" id="welcome"><div class="orb">✦</div><h1>Think it. Ask it.<br><span class="gradient">Build with AI.</span></h1><p class="subtitle">Your personal AI assistant for learning, coding, ideas, and everyday questions.</p><div class="suggestions"><button class="suggestion" data-prompt="Explain a difficult topic to me in simple words.">Learn something<small>Break down a tricky concept</small></button><button class="suggestion" data-prompt="Help me plan and build a small web app step by step.">Build a project<small>Turn an idea into a plan</small></button><button class="suggestion" data-prompt="Give me a challenging maths puzzle and let me solve it.">Challenge me<small>Try a logic or maths puzzle</small></button><button class="suggestion" data-prompt="Help me improve this code and explain why: ">Improve my code<small>Debug, explain, and refine</small></button></div></section>
     <div id="messages" aria-live="polite"></div>
     <div class="composer-wrap">
-      <div class="toolbar"><span>Ask Vanshu AI anything</span></div>
+      <div class="toolbar" style="justify-content:space-between;gap:10px"><span id="modeHint">Chat mode · quick answers</span><button id="agentModeToggle" type="button" aria-pressed="false" style="border:1px solid #ddd;border-radius:999px;background:#fff;padding:5px 11px;font-size:12px;cursor:pointer">Agent mode: Off</button></div>
       <form class="composer" id="chatForm">
         <textarea id="prompt" rows="1" maxlength="8000" placeholder="Message Vanshu AI..." aria-label="Message Vanshu AI"></textarea>
         <button class="send" id="sendBtn" type="submit" aria-label="Send message" title="Send message">
@@ -270,6 +270,7 @@ const SUPABASE_URL = "https://whogvqksufltywnexkyx.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_7bCvEzVBaTqL5spkLLKQ2A_xpRBCYQg";
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 const form=document.getElementById('chatForm'),input=document.getElementById('prompt'),messages=document.getElementById('messages'),welcome=document.getElementById('welcome'),sendBtn=document.getElementById('sendBtn'),statusText=document.getElementById('statusText');
+const agentModeToggle=document.getElementById('agentModeToggle'),modeHint=document.getElementById('modeHint');let agentMode=false;agentModeToggle.addEventListener('click',()=>{agentMode=!agentMode;agentModeToggle.setAttribute('aria-pressed',String(agentMode));agentModeToggle.textContent='Agent mode: '+(agentMode?'On':'Off');modeHint.textContent=agentMode?'Agent mode · plans multi-step tasks':'Chat mode · quick answers';input.placeholder=agentMode?'Describe a task for Vanshu AI Agent...':'Message Vanshu AI...';});
 const authPanel=document.getElementById('authPanel'),authForm=document.getElementById('authForm'),authEmail=document.getElementById('authEmail'),authPassword=document.getElementById('authPassword'),authError=document.getElementById('authError'),accountBar=document.getElementById('accountBar');
 const profilePanel=document.getElementById('profilePanel'),profileForm=document.getElementById('profileForm'),profileNameInput=document.getElementById('profileName'),profileAgeInput=document.getElementById('profileAge'),profileProfessionInput=document.getElementById('profileProfession'),profileError=document.getElementById('profileError'),profileSave=document.getElementById('profileSave'),profileDisplayName=document.getElementById('profileDisplayName'),profileAvatar=document.getElementById('profileAvatar');
 let history=[],busy=false,user=null,conversationId=null,profile=null;
@@ -425,7 +426,7 @@ form.addEventListener('submit',async e=>{
  const requestStartedAt=performance.now();let firstTokenAt=null;let responseTotalMs=null;
  try{
   const saveUserPromise=saveMessage('user',text).then(()=>({ok:true}),error=>({ok:false,error}));
-  const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:history.slice(-16),profile})});
+  const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:history.slice(-16),profile,mode:agentMode?'agent':'chat'})});
   if(!res.ok){const data=await res.json().catch(()=>({}));throw new Error(data.error||'Request failed. Please try again.');}
   let answer='';
   if((res.headers.get('content-type')||'').includes('text/event-stream')&&res.body){
