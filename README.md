@@ -9,7 +9,7 @@ A mobile-friendly personal AI assistant with chat mode, agent mode, saved conver
 - `INTELLIGENCE_MODEL`: Optional model ID for chat mode.
 - `AGENTIC_MODEL`: Optional model ID for agent mode. Existing `OPENROUTER_AGENT_MODEL` and `OPENROUTER_MODEL` remain fallbacks.
 - `OPENROUTER_API_KEY`: Shared fallback key for either route.
-- `SPEECH_API_KEY`: Reserved for a future external speech provider integration. The current voice input and read-aloud features use browser speech capabilities and do not consume this key.
+- `OPENRPUTER_SPEECH_AI`: OpenRouter API key used server-side by `/api/speech` for text-to-speech. Keep it in Vercel environment variables and never expose it in frontend code. Optional: `OPENROUTER_TTS_MODEL` and `OPENROUTER_TTS_VOICE` override the default speech model and voice.
 - Legacy `GEMINI_API_KEY` is not used by the current chat/agent routes.
 
 Select Production in Vercel for production use; select Preview/Development too if you test those environments. Redeploy after changing environment variables. Chat and agent keys must be valid for the OpenRouter-compatible endpoint. Separate API keys do not automatically add provider credits or quota.
@@ -20,7 +20,7 @@ Select Production in Vercel for production use; select Preview/Development too i
 - Separate Chat and Agent modes
 - Multi-turn context and saved chat history
 - Browser speech recognition for voice input where supported
-- Browser text-to-speech for assistant replies
+- OpenRouter text-to-speech for assistant replies, with the API key kept server-side
 - Request validation and provider error handling
 
 ## Security
