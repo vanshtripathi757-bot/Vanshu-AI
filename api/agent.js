@@ -61,7 +61,10 @@ module.exports = async function handler(req, res) {
     {type:"function",function:{name:"make_plan",description:"Create a concise ordered plan for a task.",parameters:{type:"object",properties:{goal:{type:"string"},steps:{type:"array",items:{type:"string"}}},required:["goal","steps"]}}}
   ];
   const wantsSearch = /search|research|latest|current|recent|sources|source links|web|news|today|this week/i.test(lastText);
-  const baseModel = process.env.OPENROUTER_MODEL || "openrouter/auto";
+  const isComplexTask = wantsSearch || /\\b(code|coding|debug|fix|build|create|website|app|project|multi[- ]?step|analy[sz]e|compare|plan|research)\\b/i.test(lastText);
+  const baseModel = isComplexTask
+    ? (process.env.OPENROUTER_AGENT_MODEL || process.env.OPENROUTER_MODEL || "openrouter/auto")
+    : (process.env.OPENROUTER_FAST_MODEL || process.env.OPENROUTER_MODEL || "openrouter/auto");
   const executed = []; let finalText = "";
   for (let round=0; round<MAX_TOOL_ROUNDS; round++) {
     const controller = new AbortController(); const timer = setTimeout(() => controller.abort(), 20000);
@@ -77,10 +80,11 @@ module.exports = async function handler(req, res) {
     if (!response.ok) {
       let err={}; try {err=await response.json();} catch {}
       const detail=String(err && err.error && err.error.message || "OpenRouter returned an error.");
-      if (response.status===401 || response.status===403) return res.status(502).json({error:"OpenRouter rejected the API key. Check OPENROUTER_API_KEY in Vercel."});
-      if (response.status===402) return res.status(503).json({error:"OpenRouter reports insufficient credits or payment required. Check your OpenRouter credits and account limits."});
-      if (response.status===429) return res.status(503).json({error:"OpenRouter rate limit reached. Check your account usage and model limits."});
-      return res.status(503).json({error:"OpenRouter request failed ("+response.status+"): "+detail.slice(0,180)});
+      if (response.status===401 || response.status===403) return res.status(502).json({error:"OpenRouter rejected the API key. Check the configured key and permissions."});
+      if (response.status===402) return res.status(503).json({error:"OpenRouter could not run this model request because payment or credits are required. No automatic retry was made. Check the failed request in OpenRouter Activity; the selected model or web-search feature may require paid credits. Details: "+detail.slice(0,220)});
+      if (response.status===429) return res.status(503).json({error:"OpenRouter rate limit reached. No automatic retry was made. Wait briefly or check the model's rate limits. Details: "+detail.slice(0,160)});
+      if (response.status===400) return res.status(502).json({error:"OpenRouter rejected the request format or selected model. Details: "+detail.slice(0,220)});
+      return res.status(503).json({error:"OpenRouter request failed with status "+response.status+". Details: "+detail.slice(0,220)});
     }
     const data=await response.json(); const message=data && data.choices && data.choices[0] && data.choices[0].message || {};
     const calls=Array.isArray(message.tool_calls) ? message.tool_calls : [];
