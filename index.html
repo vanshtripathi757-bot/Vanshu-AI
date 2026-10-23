@@ -426,7 +426,7 @@ form.addEventListener('submit',async e=>{
  const requestStartedAt=performance.now();let firstTokenAt=null;let responseTotalMs=null;
  try{
   const saveUserPromise=saveMessage('user',text).then(()=>({ok:true}),error=>({ok:false,error}));
-  const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:history.slice(-16),profile,mode:agentMode?'agent':'chat'})});
+  const res=await fetch(agentMode?'/api/agent':'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:history.slice(-16),profile,mode:agentMode?'agent':'chat'})});
   if(!res.ok){const data=await res.json().catch(()=>({}));throw new Error(data.error||'Request failed. Please try again.');}
   let answer='';
   if((res.headers.get('content-type')||'').includes('text/event-stream')&&res.body){
