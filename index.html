@@ -2,6 +2,80 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#080b12"><meta name="description" content="Vanshu AI — your personal AI assistant."><title>Vanshu AI</title>
 <style>
 :root{color-scheme:dark;--bg:#080b12;--panel:#111725;--line:#283248;--text:#eef3ff;--muted:#8c98ad}*{box-sizing:border-box}body{margin:0;min-height:100%;background:radial-gradient(ellipse at 15% 0%,#172448 0,transparent 36%),radial-gradient(ellipse at 90% 100%,#25163b 0,transparent 35%),var(--bg);color:var(--text);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}.app{max-width:1000px;min-height:100vh;min-height:100dvh;margin:auto;padding:0 20px;display:flex;flex-direction:column}header{height:72px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff12}.brand{display:flex;align-items:center;gap:12px;font-size:17px;font-weight:750}.logo,.orb{display:grid;place-items:center;background:linear-gradient(135deg,#70b1ff,#a78bfa);color:#09111e;font-weight:900}.logo{width:37px;height:37px;border-radius:12px}.status{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:99px;padding:7px 11px;font-size:12px;color:#aab7cb}.dot{width:7px;height:7px;border-radius:50%;background:#64d7a1}main{width:100%;max-width:780px;margin:0 auto;flex:1;display:flex;flex-direction:column;padding:28px 0 12px}.welcome{text-align:center;margin:auto 0 25px;padding:25px 0 10px}.orb{width:66px;height:66px;border-radius:22px;margin:0 auto 20px;font-size:28px;box-shadow:0 12px 50px #7799ff30}h1{font-size:clamp(32px,6vw,48px);line-height:1.08;letter-spacing:-1.7px;margin:0 0 12px}.gradient{background:linear-gradient(100deg,#a8d2ff,#c3a7ff);color:transparent;background-clip:text}.subtitle{color:var(--muted);max-width:450px;margin:0 auto 24px}.suggestions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-width:600px;margin:auto}.suggestion{text-align:left;padding:14px;border:1px solid var(--line);border-radius:14px;background:#111725d9;color:#dce6f8;transition:.2s}.suggestion:hover{border-color:#658de7;background:#172139}.suggestion small{display:block;color:var(--muted);font-size:12px;margin-top:4px}#messages{display:flex;flex-direction:column;gap:18px;padding:8px 0 25px;min-width:0}.message{display:flex;gap:12px;align-items:flex-start;animation:appear .2s}.message.user{flex-direction:row-reverse}.avatar{flex:0 0 32px;height:32px;border-radius:11px;display:grid;place-items:center;background:#1b2a46;color:#a8cbff;font-size:11px;font-weight:800}.user .avatar{background:#2a2341;color:#d0bfff}.bubble{max-width:min(84%,650px);padding:13px 16px;border:1px solid var(--line);border-radius:4px 16px 16px 16px;background:#111725;white-space:pre-wrap;overflow-wrap:anywhere}.user .bubble{border-radius:16px 4px 16px 16px;background:#19233a}.bubble.error{border-color:#7c4545;color:#ffc6c6}.typing{color:var(--muted)}.composer-wrap{position:sticky;bottom:0;z-index:5;margin-top:auto;padding:12px 0 14px;background:linear-gradient(transparent,var(--bg) 20%)}.toolbar{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:12px;margin-bottom:10px}.clear{border:0;background:transparent;color:#a9b5ca;padding:6px}.composer{display:flex;align-items:flex-end;gap:10px;padding:10px 10px 10px 16px;background:#111725;border:1px solid #34415a;border-radius:18px}.composer:focus-within{border-color:#6f96e7}textarea{flex:1;min-width:0;min-height:28px;max-height:160px;resize:none;border:0;outline:0;background:transparent;color:var(--text);padding:5px 0;line-height:1.5;font:inherit}textarea::placeholder{color:#7f8ba1}.send{height:40px;min-width:42px;border:0;border-radius:12px;background:linear-gradient(135deg,#78b4ff,#a88afa);color:#09111e;font-size:20px;font-weight:800}.send:disabled{opacity:.45}.footnote,footer{text-align:center;color:#69768c;font-size:11px}.footnote{margin-top:9px}footer{padding:0 0 18px}@keyframes appear{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}@media(max-width:520px){.app{padding:0 14px}header{height:66px}main{padding-top:20px}.suggestions{grid-template-columns:1fr}.suggestion{padding:12px}.bubble{max-width:89%}}
+
+/* Polished chat layout refresh */
+:root{--bg:#080b12;--panel:#101725;--line:#27334a;--text:#edf2ff;--muted:#8e9bb1}
+body{background:radial-gradient(ellipse at 12% 0%,#162342 0,transparent 32%),radial-gradient(ellipse at 100% 100%,#201433 0,transparent 30%),var(--bg)}
+.app{max-width:900px;padding:0 clamp(12px,3vw,24px)}
+header{height:auto;min-height:76px;gap:14px;padding:12px 0;flex-wrap:wrap}
+.brand{flex:1 1 auto;min-width:0}
+.status{flex:0 0 auto;max-width:180px;white-space:nowrap}
+.account-profile{flex:0 1 auto;max-width:100%;margin-left:auto;gap:10px}
+.profile-name-wrap{min-width:0}
+.profile-name{max-width:140px}
+.profile-edit{white-space:nowrap}
+main{max-width:760px;padding:22px 0 8px}
+#historyList{max-width:100%;scrollbar-width:thin;border-bottom:1px solid #ffffff0b;margin-bottom:8px}
+#historyList button{transition:border-color .18s,background .18s;cursor:pointer}
+#historyList button:hover{border-color:#7196eb!important;background:#18243b!important}
+#messages{gap:22px;padding:14px 0 28px}
+.message{gap:10px;animation:message-in .28s cubic-bezier(.2,.8,.2,1) both}
+.avatar{flex-basis:34px;height:34px;border-radius:12px;box-shadow:0 4px 15px #0002}
+.bubble{max-width:min(86%,650px);padding:15px 17px;border:1px solid #28354d;border-radius:5px 19px 19px 19px;background:linear-gradient(145deg,#121a29,#101623);line-height:1.65;box-shadow:0 8px 24px #0000000b}
+.user .bubble{border-radius:19px 5px 19px 19px;background:linear-gradient(145deg,#1a2944,#172138);border-color:#2c3e5e}
+.typing{display:flex;align-items:center;gap:10px;min-height:52px}
+.typing::after{content:' ';display:inline-block;width:24px;height:6px;background:radial-gradient(circle,#9db9ff 2px,transparent 3px) 0 0/8px 6px repeat-x;animation:typing-dots .85s steps(3,end) infinite}
+.composer-wrap{padding:14px 0 max(14px,env(safe-area-inset-bottom));background:linear-gradient(transparent,#080b12 18%)}
+.toolbar{margin-bottom:9px;font-size:12px;letter-spacing:.01em}
+.clear{border:1px solid #2b3851;border-radius:10px;background:#111827;padding:8px 11px;transition:background .18s,border-color .18s}
+.clear:hover{background:#1b2941;border-color:#5e7bb4}
+.composer{align-items:center;gap:10px;padding:9px 9px 9px 17px;border:1px solid #2e3b55;border-radius:24px;background:linear-gradient(145deg,#111827,#0e1420);box-shadow:0 12px 35px #0003;transition:border-color .2s,box-shadow .2s}
+.composer:focus-within{border-color:#779cff;box-shadow:0 0 0 3px #789cff16,0 12px 35px #0003}
+textarea{min-height:34px;max-height:150px;padding:7px 0}
+.send{position:relative;flex:0 0 48px;width:48px;height:48px;min-width:48px;border-radius:17px;display:grid;place-items:center;background:linear-gradient(135deg,#8cc5ff,#b09aff);color:#101529;font-size:0;box-shadow:0 5px 18px #829bff28;transition:transform .16s,filter .16s,box-shadow .16s;cursor:pointer}
+.send::before{content:'↑';font-size:25px;line-height:1;font-weight:650;transform:translateY(-1px)}
+.send:hover:not(:disabled){filter:brightness(1.08);transform:translateY(-2px);box-shadow:0 8px 22px #829bff38}
+.send:active:not(:disabled){transform:scale(.94)}
+.send:disabled{opacity:.6;cursor:wait;box-shadow:none}
+.send:disabled::before{content:'';width:18px;height:18px;border:2px solid #101529;border-right-color:transparent;border-radius:50%;animation:spin .7s linear infinite}
+.footnote{font-size:11px;margin-top:11px}
+footer{padding:4px 0 16px}
+.welcome{padding:clamp(24px,6vh,60px) 0 20px}
+.orb{animation:orb-float 4s ease-in-out infinite}
+.suggestion{cursor:pointer;border-radius:16px;background:linear-gradient(145deg,#121a29d9,#0e1420d9);transition:transform .18s,border-color .18s,background .18s}
+.suggestion:active{transform:scale(.985)}
+@keyframes message-in{from{opacity:0;transform:translateY(9px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes typing-dots{0%{background-position:0 0}100%{background-position:24px 0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes orb-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@media(max-width:560px){
+ .app{padding:0 14px}
+ header{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 8px;padding:12px 0 13px}
+ .brand{grid-column:1;grid-row:1;font-size:16px}
+ .status{grid-column:2;grid-row:1;max-width:116px;padding:7px 9px;font-size:11px}
+ .account-profile{grid-column:1/-1;grid-row:2;justify-self:stretch;width:100%;max-width:100%;padding:9px 10px;border:1px solid #202b40;border-radius:15px;background:#0e1420;gap:9px}
+ .profile-avatar{width:32px;height:32px;flex-basis:32px}
+ .profile-name{max-width:none}
+ .profile-name-wrap{flex:1}
+ .account-profile #signOutBtn{padding:8px 10px}
+ main{padding-top:12px}
+ #messages{gap:17px;padding-top:8px}
+ .message{gap:8px}
+ .avatar{flex-basis:30px;height:30px;border-radius:10px}
+ .bubble{max-width:calc(100% - 38px);padding:12px 14px;border-radius:5px 16px 16px 16px;font-size:15px}
+ .user .bubble{border-radius:16px 5px 16px 16px}
+ .composer-wrap{padding-top:10px}
+ .composer{padding:7px 7px 7px 14px;border-radius:21px}
+ .send{width:46px;height:46px;min-width:46px;flex-basis:46px;border-radius:16px}
+ .welcome{margin:auto 0 18px}
+ .orb{width:54px;height:54px;border-radius:18px;font-size:24px;margin-bottom:15px}
+ h1{letter-spacing:-1px}
+ .suggestions{grid-template-columns:1fr;gap:8px}
+ .suggestion{padding:12px 14px}
+ footer{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+
 </style>
 <style>
 .auth-panel{position:fixed;inset:0;z-index:20;display:grid;place-items:center;box-sizing:border-box;width:100%;min-width:0;padding:16px;background:#080b12ee;backdrop-filter:blur(12px);overflow-x:hidden;overflow-y:auto;animation:authfade .24s ease-out}.auth-panel[hidden]{display:none!important}.auth-card{box-sizing:border-box;width:100%;max-width:420px;min-width:0;max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);overflow-x:hidden;overflow-y:auto;padding:clamp(18px,5vw,25px);border:1px solid #34415a;border-radius:22px;background:linear-gradient(145deg,#141c2c,#0e1421);box-shadow:0 25px 90px #0008;animation:authrise .32s cubic-bezier(.2,.8,.2,1)}.auth-card h2{margin:0 0 6px;font-size:25px}.auth-card p{margin:0 0 18px;color:#9ba9bf}.auth-card input{display:block;width:100%;margin:10px 0;padding:13px;border:1px solid #34415a;border-radius:11px;background:#080b12;color:#eef3ff;font:inherit}.auth-actions{display:flex;gap:10px}.auth-actions button,.auth-logout{padding:11px 14px;border:1px solid #34415a;border-radius:11px;background:#1b2a46;color:#eef3ff;font:inherit}.auth-actions button:first-child{background:linear-gradient(135deg,#78b4ff,#a88afa);color:#09111e;border:0}.auth-error{color:#c7d7f7!important;min-height:0;margin-top:14px!important;padding:0;font-size:13px;line-height:1.5;overflow-wrap:anywhere;transition:opacity .2s}.auth-error:not(:empty){padding:11px 12px;border:1px solid #334968;border-radius:10px;background:#152238}.auth-error[data-kind="error"]{color:#ffd7dc!important;border-color:#63414d;background:#251923}.auth-error[data-kind="status"]{color:#c7d7f7!important}.auth-actions button{cursor:pointer;transition:transform .16s ease,opacity .16s ease,box-shadow .16s ease}.auth-actions button:active{transform:scale(.97)}.auth-actions button:disabled{opacity:.58;cursor:wait}.auth-actions button:first-child{box-shadow:0 5px 18px #8b9dff22}.auth-error:empty{visibility:hidden}.auth-card.is-busy .auth-actions button:first-child:disabled{position:relative}.auth-card.is-busy .auth-actions button:first-child:disabled:after{content:'';display:inline-block;width:12px;height:12px;margin-left:8px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;vertical-align:-2px;animation:authspin .7s linear infinite}@keyframes authspin{to{transform:rotate(360deg)}}@keyframes authfade{from{opacity:0}to{opacity:1}}@keyframes authrise{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}#accountBar{display:flex;align-items:center;gap:8px;font-size:12px;color:#aab7cb}#accountBar button{background:transparent;border:1px solid #34415a;border-radius:9px;color:#aab7cb;padding:6px 8px}@media(max-width:520px){.auth-card{padding:20px}}
@@ -51,7 +125,7 @@ const authPanel=document.getElementById('authPanel'),authForm=document.getElemen
 const profilePanel=document.getElementById('profilePanel'),profileForm=document.getElementById('profileForm'),profileNameInput=document.getElementById('profileName'),profileAgeInput=document.getElementById('profileAge'),profileProfessionInput=document.getElementById('profileProfession'),profileError=document.getElementById('profileError'),profileSave=document.getElementById('profileSave'),profileDisplayName=document.getElementById('profileDisplayName'),profileAvatar=document.getElementById('profileAvatar');
 let history=[],busy=false,user=null,conversationId=null,profile=null;
 function scrollToLatest(){requestAnimationFrame(()=>{const last=messages.lastElementChild;if(last)last.scrollIntoView({behavior:'smooth',block:'end'});});}
-function addMessage(role,text,extra=''){const row=document.createElement('div');row.className='message '+role;const avatar=document.createElement('div');avatar.className='avatar';avatar.textContent=role==='user'?'YOU':'V';const bubble=document.createElement('div');bubble.className='bubble '+extra;bubble.textContent=text;row.append(avatar,bubble);messages.appendChild(row);scrollToLatest();return bubble}
+function addMessage(role,text,extra=''){const row=document.createElement('div');row.className='message '+role;const avatar=document.createElement('div');avatar.className='avatar';avatar.textContent=role==='user'?'YOU':(profile?.display_name?.trim()?.[0]||'V').toUpperCase();const bubble=document.createElement('div');bubble.className='bubble '+extra;bubble.textContent=text;row.append(avatar,bubble);messages.appendChild(row);scrollToLatest();return bubble}
 function resize(){input.style.height='auto';input.style.height=Math.min(input.scrollHeight,160)+'px'}
 function showAuth(message='',kind='error'){authPanel.hidden=false;authError.dataset.kind=message?kind:'';authError.textContent=message;accountBar.hidden=true;}
 async function ensureConversation(firstText){
@@ -132,13 +206,13 @@ async function authRequest(action){
 authForm.addEventListener('submit',e=>{e.preventDefault();authRequest('signin');});
 signUpBtn.addEventListener('click',()=>authRequest('signup'));
 document.getElementById('signOutBtn').addEventListener('click',async()=>{await db.auth.signOut();user=null;conversationId=null;history=[];messages.replaceChildren();welcome.hidden=false;showAuth('You have signed out.');});
-document.getElementById('clearBtn').addEventListener('click',()=>{history=[];conversationId=null;messages.replaceChildren();welcome.hidden=false;statusText.textContent='New chat';input.focus();window.scrollTo({top:0,behavior:'smooth'});});
+document.getElementById('clearBtn').addEventListener('click',()=>{if(busy)return;history=[];conversationId=null;messages.replaceChildren();welcome.hidden=false;statusText.textContent='New chat';input.value='';resize();input.focus();});
 input.addEventListener('input',resize);input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();form.requestSubmit();}});
 document.querySelectorAll('[data-prompt]').forEach(b=>b.addEventListener('click',()=>{input.value=b.dataset.prompt;input.focus();resize();}));
 form.addEventListener('submit',async e=>{
  e.preventDefault();const text=input.value.trim();if(!text||busy)return;
  if(!user){showAuth('Sign in to start saving chats.');return;}
- welcome.hidden=true;addMessage('user',text);input.value='';resize();history.push({role:'user',content:text});busy=true;sendBtn.disabled=true;statusText.textContent='Thinking…';const pending=addMessage('assistant','Generating a response…','typing');pending.setAttribute('aria-label','AI is generating a response');
+ welcome.hidden=true;addMessage('user',text);input.value='';resize();history.push({role:'user',content:text});busy=true;sendBtn.disabled=true;statusText.textContent='Thinking…';const pending=addMessage('assistant','Vanshu AI is thinking','typing');pending.setAttribute('aria-label','AI is generating a response');
  try{
   await saveMessage('user',text);
   const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:history.slice(-16),profile})});
