@@ -95,7 +95,7 @@ module.exports = async function handler(req, res) {
     }
   }
   if (!finalText) finalText="I could not complete this agent run within the tool-step limit. Please narrow the task and try again.";
-  if (executed.length) finalText += "\n\nTools used: " + executed.join("; ") + ".";
+  // Keep internal tool execution details out of the user-facing answer.
   res.status(200); res.setHeader("Content-Type","text/event-stream; charset=utf-8"); res.setHeader("Cache-Control","no-cache, no-transform"); res.setHeader("Connection","keep-alive"); res.setHeader("X-Accel-Buffering","no");
   res.write("data: "+JSON.stringify({candidates:[{content:{parts:[{text:finalText}]}}]})+"\n\n"); res.write("data: [DONE]\n\n"); return res.end();
 };
