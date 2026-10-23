@@ -388,7 +388,7 @@ form.addEventListener('submit',async e=>{
  if(!user){showAuth('Sign in to start saving chats.');return;}
  welcome.hidden=true;addMessage('user',text);input.value='';resize();history.push({role:'user',content:text});busy=true;sendBtn.disabled=true;statusText.textContent='Thinking…';const pending=addMessage('assistant','Vanshu AI is thinking','typing');pending.setAttribute('aria-label','AI is generating a response');
  try{
-  const saveUserPromise=saveMessage('user',text);
+  const saveUserPromise=saveMessage('user',text).then(()=>({ok:true}),error=>({ok:false,error}));
   const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:history.slice(-16),profile})});
   if(!res.ok){const data=await res.json().catch(()=>({}));throw new Error(data.error||'Request failed. Please try again.');}
   let answer='';
@@ -399,7 +399,7 @@ form.addEventListener('submit',async e=>{
    if(buffer.trim())consumeEvent(buffer);
   }else{const data=await res.json().catch(()=>({}));answer=String(data.reply||'');pending.textContent=answer;}
   if(!answer.trim())throw new Error('The AI did not return a response. Please try again.');
-  pending.className='bubble';pending.textContent=answer;history.push({role:'assistant',content:answer});await saveUserPromise;await saveMessage('assistant',answer);await loadConversations();statusText.textContent='Assistant ready';
+  pending.className='bubble';pending.textContent=answer;history.push({role:'assistant',content:answer});const savedUser=await saveUserPromise;if(!savedUser.ok)throw savedUser.error;await saveMessage('assistant',answer);await loadConversations();statusText.textContent='Assistant ready';
  }catch(err){pending.className='bubble error';pending.textContent=err.message||'Something went wrong. Please try again.';if(history.length&&history[history.length-1].role==='user')history.pop();statusText.textContent='Could not save or send';}
  finally{busy=false;sendBtn.disabled=false;input.focus();}
 });
