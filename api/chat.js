@@ -13,7 +13,7 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed." });
   }
 
-  if (!(await requireAuth(req, res))) return;
+  if (!(await requireAuth(req, res, "chat"))) return;
 
   const apiKey = process.env.OPENROUTER_API_KEY || process.env.INTELLIGENCE_API_KEY;
   if (!apiKey) {
