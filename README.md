@@ -9,7 +9,7 @@ A mobile-friendly personal AI assistant with chat mode, agent mode, saved conver
 - `INTELLIGENCE_MODEL`: Optional model ID for chat mode.
 - `AGENTIC_MODEL`: Optional model ID for agent mode. Existing `OPENROUTER_AGENT_MODEL` and `OPENROUTER_MODEL` remain fallbacks.
 - `OPENROUTER_API_KEY`: Shared fallback key for either route.
-- `SPEECH_API_KEY`: Reserved for a future external speech provider integration. The current voice input and read-aloud features use browser speech capabilities and do not consume this key.
+- `OPENRPUTER_SPEECH_AI`: OpenRouter API key used server-side by `/api/speech` for text-to-speech. Keep it in Vercel environment variables and never expose it in frontend code. Optional: `OPENROUTER_TTS_MODEL` and `OPENROUTER_TTS_VOICE` override the default low-latency model (`microsoft/mai-voice-2.1-flash`) and voice (`en-US-Harper:MAI-Voice-2.1-Flash`). The model and voice must be a supported pair.
 - Legacy `GEMINI_API_KEY` is not used by the current chat/agent routes.
 
 Select Production in Vercel for production use; select Preview/Development too if you test those environments. Redeploy after changing environment variables. Chat and agent keys must be valid for the OpenRouter-compatible endpoint. Separate API keys do not automatically add provider credits or quota.
@@ -20,9 +20,16 @@ Select Production in Vercel for production use; select Preview/Development too i
 - Separate Chat and Agent modes
 - Multi-turn context and saved chat history
 - Browser speech recognition for voice input where supported
-- Browser text-to-speech for assistant replies
+- OpenRouter text-to-speech for assistant replies, with the API key kept server-side
 - Request validation and provider error handling
 
 ## Security
 
-Never commit API keys to GitHub or put them in client-side JavaScript. Keep all provider credentials in Vercel environment variables. Add rate limiting before making the app public.
+Never commit API keys to GitHub or put them in client-side JavaScript. Keep all provider credentials in Vercel environment variables. The chat, agent, and speech API routes verify the Supabase bearer token server-side. A database-backed per-user limiter is configured for 20 chat requests/minute, 6 agent requests/minute, and 30 speech requests/minute.
+
+Before deploying these API changes, apply the SQL migrations in `supabase/migrations/` to the linked Supabase project in filename order. They tighten message/conversation ownership and install the shared rate-limit RPC. The code intentionally fails closed if the rate-limit RPC is not available, so applying the migrations is a deployment prerequisite. The migrations have been staged in the GitHub PR and have not been applied to production yet.
+
+
+### AI provider configuration
+
+Chat and agent routes prefer `OPENROUTER_API_KEY`; for backward compatibility, they also accept `INTELLIGENCE_API_KEY` and `AGENTIC_API_KEY`. Optional model overrides are `OPENROUTER_CHAT_MODEL` for chat and `OPENROUTER_AGENT_MODEL` for agent requests. Older `INTELLIGENCE_MODEL` and `AGENTIC_MODEL` values remain supported as fallbacks. If no model is set, both routes use `nvidia/nemotron-3.5-lightning:free`; provider availability and quotas still apply.

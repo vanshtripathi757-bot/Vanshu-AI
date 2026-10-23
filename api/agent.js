@@ -23,10 +23,13 @@ function calculate(expression) {
   return result;
 }
 
+const requireAuth = require("../lib/require-auth");
+
 module.exports = async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
   res.setHeader("X-Content-Type-Options", "nosniff");
   if (req.method !== "POST") { res.setHeader("Allow", "POST"); return res.status(405).json({error:"Method not allowed."}); }
+  if (!(await requireAuth(req, res, "agent"))) return;
   const body = req.body || {};
   if (!Array.isArray(body.messages) || !body.messages.length) return res.status(400).json({error:"Send at least one message."});
   const lastUser = [...body.messages].reverse().find(item => item && item.role === "user" && typeof item.content === "string");
@@ -43,7 +46,7 @@ module.exports = async function handler(req, res) {
       res.write("data: "+JSON.stringify({candidates:[{content:{parts:[{text:answer}]}}]})+"\n\n"); res.write("data: [DONE]\n\n"); return res.end();
     } catch {}
   }
-  const apiKey = process.env.OPENROUTER_API_KEY || process.env.AGENTIC_API_KEY;
+  const apiKey = process.env.OPENROUTER_API_KEY || process.env.INTELLIGENCE_API_KEY || process.env.AGENTIC_API_KEY;
   if (!apiKey) return res.status(503).json({error:"Agent backend not configured. Add OPENROUTER_API_KEY in Vercel, then redeploy."});
   const messages = []; let total = 0;
   for (const item of body.messages.slice(-MAX_MESSAGES)) {
@@ -72,11 +75,19 @@ module.exports = async function handler(req, res) {
   const wantsSearch = /search|research|latest|current|recent|sources|source links|web|news|today|this week/i.test(lastText);
   const isComplexTask = wantsSearch || /\b(code|coding|debug|fix|build|create|website|app|project|multi[- ]?step|analy[sz]e|compare|plan|research)\b/i.test(lastText);
   const baseModel = isComplexTask
-    ? (process.env.AGENTIC_MODEL || process.env.OPENROUTER_AGENT_MODEL || process.env.OPENROUTER_FAST_MODEL || process.env.OPENROUTER_MODEL || "nvidia/nemotron-3.5-lightning:free")
-    : (process.env.OPENROUTER_FAST_MODEL || process.env.OPENROUTER_MODEL || "nvidia/nemotron-3-ultra-550b-a55b:free");
+    ? (process.env.OPENROUTER_AGENT_MODEL || process.env.AGENTIC_MODEL || process.env.OPENROUTER_MODEL || process.env.OPENROUTER_FAST_MODEL || "nvidia/nemotron-3.5-lightning:free")
+    : (process.env.OPENROUTER_AGENT_MODEL || process.env.OPENROUTER_MODEL || process.env.OPENROUTER_FAST_MODEL || "nvidia/nemotron-3.5-lightning:free");
   const executed = []; let finalText = "";
+  // Keep multi-round agent work inside the configured 60-second serverless limit.
+  const deadline = Date.now() + 52000;
   for (let round=0; round<MAX_TOOL_ROUNDS; round++) {
-    const controller = new AbortController(); const timer = setTimeout(() => controller.abort(), 45000);
+    if (Date.now() + 3000 >= deadline) {
+      finalText = String(finalText || "I reached the execution time limit before I could finish reliably. Please narrow the task and try again.").trim();
+      break;
+    }
+    const controller = new AbortController();
+    const remainingMs = deadline - Date.now() - 1500;
+    const timer = setTimeout(() => controller.abort(), Math.min(45000, remainingMs));
     let response;
     try {
       const requestTools = round === MAX_TOOL_ROUNDS - 1

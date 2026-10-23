@@ -1,7 +1,9 @@
 const MAX_MESSAGES = 16;
 const MAX_MESSAGE_LENGTH = 8000;
 const MAX_TOTAL_LENGTH = 24000;
-const MODEL_TIMEOUT_MS = 30000;
+const MODEL_TIMEOUT_MS = 50000;
+
+const requireAuth = require("../lib/require-auth");
 
 module.exports = async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
@@ -11,7 +13,9 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed." });
   }
 
-  const apiKey = process.env.OPENROUTER_API_KEY || process.env.INTELLIGENCE_API_KEY;
+  if (!(await requireAuth(req, res, "chat"))) return;
+
+  const apiKey = process.env.OPENROUTER_API_KEY || process.env.INTELLIGENCE_API_KEY || process.env.AGENTIC_API_KEY;
   if (!apiKey) {
     return res.status(503).json({ error: "Intelligence backend not configured. Add OPENROUTER_API_KEY in Vercel, then redeploy." });
   }
@@ -62,32 +66,107 @@ module.exports = async function handler(req, res) {
   try {
     response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + apiKey, "HTTP-Referer": "https://vanshu-ai.vercel.app", "X-Title": "Vanshu AI" },
-      body: JSON.stringify({ model: process.env.OPENROUTER_FAST_MODEL || process.env.INTELLIGENCE_MODEL || process.env.OPENROUTER_MODEL || "nvidia/nemotron-3.5-lightning:free", messages: [{ role: "system", content: system }, ...messages], temperature: 0.3, max_tokens: 700 }),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + apiKey,
+        "HTTP-Referer": "https://vanshu-ai.vercel.app",
+        "X-Title": "Vanshu AI"
+      },
+      body: JSON.stringify({
+        model: process.env.OPENROUTER_CHAT_MODEL || process.env.OPENROUTER_MODEL || process.env.OPENROUTER_FAST_MODEL || process.env.INTELLIGENCE_MODEL || "nvidia/nemotron-3.5-lightning:free",
+        messages: [{ role: "system", content: system }, ...messages],
+        temperature: 0.3,
+        max_tokens: 700,
+        stream: true
+      }),
       signal: controller.signal
     });
   } catch (error) {
     clearTimeout(timeoutId);
-    return res.status(error && error.name === "AbortError" ? 504 : 503).json({ error: error && error.name === "AbortError" ? "The AI request timed out. Please try again." : "Could not connect to the AI service. Please try again." });
+    return res.status(error && error.name === "AbortError" ? 504 : 503).json({
+      error: error && error.name === "AbortError" ? "The AI request timed out. Please try again." : "Could not connect to the AI service. Please try again."
+    });
   }
-  clearTimeout(timeoutId);
+
   if (!response.ok) {
-    let detail = ""; try { const data = await response.json(); detail = String(data && data.error && data.error.message || ""); } catch {}
+    clearTimeout(timeoutId);
+    let detail = "";
+    try {
+      const data = await response.json();
+      detail = String(data && data.error && data.error.message || "");
+    } catch {}
     if (response.status === 401 || response.status === 403) return res.status(502).json({ error: "OpenRouter rejected the API key. Check OPENROUTER_API_KEY in Vercel." });
     if (response.status === 402) return res.status(503).json({ error: "OpenRouter requires available credits or payment. Check your account limits." });
     if (response.status === 429) return res.status(503).json({ error: "OpenRouter rate limit reached. Please wait and try again." });
     return res.status(503).json({ error: "OpenRouter request failed (" + response.status + "). " + detail.slice(0, 160) });
   }
-  let data; try { data = await response.json(); } catch { return res.status(502).json({ error: "The AI service returned an unreadable response." }); }
-  const rawAnswer = String(data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content || "").trim();
-  const answer = rawAnswer
-    .split("\n").map(line => line.replace(/^\s{0,3}#{1,6}\s*/, "").replace(/^\s*[-*+•>]\s*/, "")).join("\n")
-    .replaceAll("**", "")
-    .replaceAll("__", "")
-    .replaceAll("`", "")
-    .trim();
-  if (!answer) return res.status(502).json({ error: "The AI service returned an empty response." });
-  res.status(200); res.setHeader("Content-Type", "text/event-stream; charset=utf-8"); res.setHeader("Cache-Control", "no-cache, no-transform"); res.setHeader("Connection", "keep-alive"); res.setHeader("X-Accel-Buffering", "no");
-  res.write("data: " + JSON.stringify({ candidates: [{ content: { parts: [{ text: answer }] } }] }) + "\n\n"); res.write("data: [DONE]\n\n"); return res.end();
-  
+
+  if (!response.body || typeof response.body.getReader !== "function") {
+    clearTimeout(timeoutId);
+    return res.status(502).json({ error: "The AI service did not provide a streaming response." });
+  }
+
+  res.status(200);
+  res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
+  res.setHeader("Cache-Control", "no-cache, no-transform");
+  res.setHeader("Connection", "keep-alive");
+  res.setHeader("X-Accel-Buffering", "no");
+  if (typeof res.flushHeaders === "function") res.flushHeaders();
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let finished = false;
+
+  function sendText(piece) {
+    if (!piece) return;
+    res.write("data: " + JSON.stringify({ candidates: [{ content: { parts: [{ text: piece }] } }] }) + "\n\n");
+  }
+
+  function consumeEvent(event) {
+    for (const line of event.split(/\r?\n/)) {
+      if (!line.startsWith("data:")) continue;
+      const raw = line.slice(5).trim();
+      if (!raw) continue;
+      if (raw === "[DONE]") { finished = true; return; }
+      let data;
+      try { data = JSON.parse(raw); } catch { continue; }
+      if (data && data.error) throw new Error(String(data.error.message || data.error).slice(0, 180));
+      const delta = data && data.choices && data.choices[0] && data.choices[0].delta && data.choices[0].delta.content;
+      const piece = typeof delta === "string"
+        ? delta
+        : Array.isArray(delta)
+          ? delta.map(part => typeof part === "string" ? part : String(part && part.text || "")).join("")
+          : "";
+      sendText(piece);
+    }
+  }
+
+  try {
+    while (!finished) {
+      const { done, value } = await reader.read();
+      buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
+      const events = buffer.split(/\r?\n\r?\n/);
+      buffer = events.pop() || "";
+      for (const event of events) {
+        consumeEvent(event);
+        if (finished) break;
+      }
+      if (done) {
+        if (buffer.trim() && !finished) consumeEvent(buffer);
+        break;
+      }
+    }
+    res.write("data: [DONE]\n\n");
+    return res.end();
+  } catch {
+    try { await reader.cancel(); } catch {}
+    if (!res.writableEnded) {
+      res.write("data: " + JSON.stringify({ error: "The AI response was interrupted. Please try again." }) + "\n\n");
+      res.write("data: [DONE]\n\n");
+      return res.end();
+    }
+  } finally {
+    clearTimeout(timeoutId);
+  }
 };

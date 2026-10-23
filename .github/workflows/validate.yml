@@ -1,0 +1,36 @@
+name: Validate source
+
+on:
+  push:
+    branches: [main, audit-fixes-2026-10]
+  pull_request:
+    branches: [main]
+
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check API JavaScript syntax
+        run: |
+          node --check api/chat.js
+          node --check api/agent.js
+          node --check api/speech.js
+          node --check lib/require-auth.js
+      - name: Run authentication tests
+        run: node --test test/*.test.js
+      - name: Check inline frontend JavaScript syntax
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          html = Path("index.html").read_text(encoding="utf-8")
+          scripts = re.findall(r"<script(?:\s[^>]*)?>(.*?)</script>", html, re.S | re.I)
+          if not scripts:
+              raise SystemExit("No inline script found in index.html")
+          Path("/tmp/vanshu-frontend.js").write_text(scripts[-1], encoding="utf-8")
+          PY
+          node --check /tmp/vanshu-frontend.js
