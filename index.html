@@ -76,6 +76,33 @@ footer{padding:4px 0 16px}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
 
+
+/* Workspace menu: keep the chat canvas uncluttered */
+.brand-menu{border:0;background:transparent;color:var(--text);padding:0;cursor:pointer;text-align:left}
+.brand-chevron{font-size:20px;color:#9eafd0;transition:transform .2s}
+.brand-menu[aria-expanded="true"] .brand-chevron{transform:rotate(180deg)}
+.status{display:none!important}
+#accountBar{display:none!important}
+.menu-shade{position:fixed;inset:0;z-index:39;background:#02050bd1;backdrop-filter:blur(5px);animation:authfade .18s ease-out}
+.menu-shade[hidden],.app-menu[hidden]{display:none!important}
+.app-menu{position:fixed;z-index:40;top:12px;bottom:12px;left:12px;width:min(360px,calc(100vw - 24px));display:flex;flex-direction:column;padding:18px;border:1px solid #2a3852;border-radius:24px;background:linear-gradient(155deg,#141e31,#090e18 70%);box-shadow:0 28px 90px #0009;animation:menu-in .24s cubic-bezier(.2,.8,.2,1);overflow:hidden}
+.menu-top{display:flex;justify-content:space-between;align-items:center;padding-bottom:17px;border-bottom:1px solid #ffffff12}
+.menu-top strong,.menu-profile-info strong{display:block;font-size:16px}.menu-top small,.menu-profile-info small{display:block;color:#8e9bb1;font-size:12px;margin-top:3px}
+.menu-close{width:36px;height:36px;border-radius:12px;border:1px solid #2c3951;background:#151e2e;color:#dce6f8;font-size:24px;line-height:1}
+.menu-action{width:100%;display:flex;align-items:center;gap:11px;padding:12px 13px;border:1px solid #2b3851;border-radius:13px;background:#121b2a;color:#e5ecfc;font:inherit;text-align:left;cursor:pointer;transition:background .18s,border-color .18s,transform .18s}
+.menu-action:active{transform:scale(.985)}.menu-action:hover{background:#1a2840;border-color:#4c6592}
+.menu-new{margin:16px 0 20px;background:linear-gradient(110deg,#1c2d49,#1b1b37);border-color:#465b83;font-weight:650}.menu-new span:first-child{font-size:21px;color:#a9c7ff}
+.menu-section-title{font-size:10px;font-weight:800;letter-spacing:.14em;color:#7888a4;margin-bottom:9px}
+.menu-history{min-height:0;flex:1;overflow:auto;display:flex;flex-direction:column;gap:6px}
+.menu-history button{width:100%;padding:11px 12px;border:1px solid transparent;border-radius:12px;background:transparent;color:#cdd7eb;text-align:left;font:inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.menu-history button:hover,.menu-history button[aria-current="true"]{background:#1a263b;border-color:#2e405f}
+.menu-empty{font-size:13px;color:#7f8da5;line-height:1.6;padding:4px 2px}
+.menu-bottom{padding-top:14px;border-top:1px solid #ffffff12;display:grid;gap:8px}
+.menu-profile-row{display:flex;align-items:center;gap:10px;padding:4px 2px 8px}
+.menu-profile-info{min-width:0;flex:1}.menu-profile-info strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.menu-signout{color:#bdc7d9}
+@keyframes menu-in{from{opacity:0;transform:translateX(-12px) scale(.99)}to{opacity:1;transform:translateX(0) scale(1)}}
+@media(max-width:560px){.app-menu{top:8px;bottom:8px;left:8px;width:min(340px,calc(100vw - 16px));border-radius:22px}.brand-menu{gap:9px}.brand-chevron{margin-left:1px}}
+
 </style>
 <style>
 .auth-panel{position:fixed;inset:0;z-index:20;display:grid;place-items:center;box-sizing:border-box;width:100%;min-width:0;padding:16px;background:#080b12ee;backdrop-filter:blur(12px);overflow-x:hidden;overflow-y:auto;animation:authfade .24s ease-out}.auth-panel[hidden]{display:none!important}.auth-card{box-sizing:border-box;width:100%;max-width:420px;min-width:0;max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);overflow-x:hidden;overflow-y:auto;padding:clamp(18px,5vw,25px);border:1px solid #34415a;border-radius:22px;background:linear-gradient(145deg,#141c2c,#0e1421);box-shadow:0 25px 90px #0008;animation:authrise .32s cubic-bezier(.2,.8,.2,1)}.auth-card h2{margin:0 0 6px;font-size:25px}.auth-card p{margin:0 0 18px;color:#9ba9bf}.auth-card input{display:block;width:100%;margin:10px 0;padding:13px;border:1px solid #34415a;border-radius:11px;background:#080b12;color:#eef3ff;font:inherit}.auth-actions{display:flex;gap:10px}.auth-actions button,.auth-logout{padding:11px 14px;border:1px solid #34415a;border-radius:11px;background:#1b2a46;color:#eef3ff;font:inherit}.auth-actions button:first-child{background:linear-gradient(135deg,#78b4ff,#a88afa);color:#09111e;border:0}.auth-error{color:#c7d7f7!important;min-height:0;margin-top:14px!important;padding:0;font-size:13px;line-height:1.5;overflow-wrap:anywhere;transition:opacity .2s}.auth-error:not(:empty){padding:11px 12px;border:1px solid #334968;border-radius:10px;background:#152238}.auth-error[data-kind="error"]{color:#ffd7dc!important;border-color:#63414d;background:#251923}.auth-error[data-kind="status"]{color:#c7d7f7!important}.auth-actions button{cursor:pointer;transition:transform .16s ease,opacity .16s ease,box-shadow .16s ease}.auth-actions button:active{transform:scale(.97)}.auth-actions button:disabled{opacity:.58;cursor:wait}.auth-actions button:first-child{box-shadow:0 5px 18px #8b9dff22}.auth-error:empty{visibility:hidden}.auth-card.is-busy .auth-actions button:first-child:disabled{position:relative}.auth-card.is-busy .auth-actions button:first-child:disabled:after{content:'';display:inline-block;width:12px;height:12px;margin-left:8px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;vertical-align:-2px;animation:authspin .7s linear infinite}@keyframes authspin{to{transform:rotate(360deg)}}@keyframes authfade{from{opacity:0}to{opacity:1}}@keyframes authrise{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}#accountBar{display:flex;align-items:center;gap:8px;font-size:12px;color:#aab7cb}#accountBar button{background:transparent;border:1px solid #34415a;border-radius:9px;color:#aab7cb;padding:6px 8px}@media(max-width:520px){.auth-card{padding:20px}}
@@ -112,9 +139,9 @@ footer{padding:4px 0 16px}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-</head><body><div class="app"><header><div class="brand"><div class="logo">V</div><span>Vanshu AI</span></div><div class="status"><span class="dot"></span><span id="statusText">Assistant ready</span></div><div id="accountBar" class="account-profile" hidden><div class="profile-avatar" id="profileAvatar">V</div><div class="profile-name-wrap"><span class="profile-name" id="profileDisplayName">Your profile</span><button class="profile-edit" id="editProfileBtn" type="button">Edit profile</button></div><button id="signOutBtn" type="button">Sign out</button></div></header><main>
+</head><body><div class="app"><header><button class="brand brand-menu" id="menuToggle" type="button" aria-label="Open Vanshu AI menu" aria-expanded="false"><div class="logo">V</div><span>Vanshu AI</span><span class="brand-chevron">⌄</span></button><div id="menuShade" class="menu-shade" hidden></div><aside id="appMenu" class="app-menu" aria-label="Vanshu AI menu" hidden><div class="menu-top"><div><strong id="menuGreeting">Your workspace</strong><small>Chats and profile</small></div><button type="button" id="closeMenu" class="menu-close" aria-label="Close menu">×</button></div><button type="button" id="newChatMenu" class="menu-action menu-new"><span>＋</span><span>New chat</span></button><div class="menu-section-title">RECENT CHATS</div><div id="menuHistory" class="menu-history"><p class="menu-empty">Your recent chats will appear here.</p></div><div class="menu-bottom"><div class="menu-profile-row"><div class="profile-avatar" id="menuAvatar">V</div><div class="menu-profile-info"><strong id="menuProfileName">Your profile</strong><small id="menuProfileRole">Personal workspace</small></div></div><button type="button" id="menuEditProfile" class="menu-action">Edit profile</button><button type="button" id="menuSignOut" class="menu-action menu-signout">Sign out</button></div></aside><div id="accountBar" hidden><span id="accountEmail" hidden></span><span id="profileAvatar" hidden>V</span><span id="profileDisplayName" hidden>Your profile</span><button id="editProfileBtn" type="button" hidden>Edit profile</button><button id="signOutBtn" type="button" hidden>Sign out</button></div></header><main>
 <section class="welcome" id="welcome"><div class="orb">✦</div><h1>Think it. Ask it.<br><span class="gradient">Build with AI.</span></h1><p class="subtitle">Your personal AI assistant for learning, coding, ideas, and everyday questions.</p><div class="suggestions"><button class="suggestion" data-prompt="Explain a difficult topic to me in simple words.">Learn something<small>Break down a tricky concept</small></button><button class="suggestion" data-prompt="Help me plan and build a small web app step by step.">Build a project<small>Turn an idea into a plan</small></button><button class="suggestion" data-prompt="Give me a challenging maths puzzle and let me solve it.">Challenge me<small>Try a logic or maths puzzle</small></button><button class="suggestion" data-prompt="Help me improve this code and explain why: ">Improve my code<small>Debug, explain, and refine</small></button></div></section>
-<div id="messages" aria-live="polite"></div><div class="composer-wrap"><div class="toolbar"><span>Ask Vanshu AI anything</span><button class="clear" id="clearBtn" type="button">New chat ↺</button></div><form class="composer" id="chatForm"><textarea id="prompt" rows="1" maxlength="8000" placeholder="Message Vanshu AI..." aria-label="Message Vanshu AI"></textarea><button class="send" id="sendBtn" type="submit" aria-label="Send message">↑</button></form><div class="footnote">AI can make mistakes. Verify important information.</div></div></main><footer>Vanshu AI · Powered by Gemini</footer></div>
+<div id="messages" aria-live="polite"></div><div class="composer-wrap"><div class="toolbar"><span>Ask Vanshu AI anything</span></div><form class="composer" id="chatForm"><textarea id="prompt" rows="1" maxlength="8000" placeholder="Message Vanshu AI..." aria-label="Message Vanshu AI"></textarea><button class="send" id="sendBtn" type="submit" aria-label="Send message">↑</button></form><div class="footnote">AI can make mistakes. Verify important information.</div></div></main><footer>Vanshu AI · Powered by Gemini</footer></div>
 <script>
 (()=> {
 const SUPABASE_URL = "https://whogvqksufltywnexkyx.supabase.co";
@@ -141,23 +168,23 @@ async function saveMessage(role,content){
  await db.from('chat_conversations').update({updated_at:new Date().toISOString()}).eq('id',id);
 }
 async function loadConversations(){
- let list=document.getElementById('historyList');
- if(!list){list=document.createElement('div');list.id='historyList';list.style.cssText='display:flex;gap:8px;overflow-x:auto;padding:10px 0;';document.querySelector('main').prepend(list);}
- list.replaceChildren();
+ const list=document.getElementById('menuHistory');list.replaceChildren();
  const {data,error}=await db.from('chat_conversations').select('id,title,updated_at').order('updated_at',{ascending:false}).limit(30);
- if(error){statusText.textContent='History unavailable';return;}
- for(const item of data||[]){
-  const b=document.createElement('button');b.type='button';b.textContent=item.title;b.title=item.title;b.style.cssText='flex:0 0 auto;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:8px 12px;border:1px solid #283248;border-radius:10px;background:#111725;color:#dce6f8;';
-  b.addEventListener('click',()=>openConversation(item.id));list.appendChild(b);
+ if(error){list.innerHTML='<p class="menu-empty">Chat history could not load. Please try again.</p>';return;}
+ if(!data?.length){list.innerHTML='<p class="menu-empty">No saved chats yet. Start a new chat and it will appear here.</p>';return;}
+ for(const item of data){
+  const b=document.createElement('button');b.type='button';b.textContent=item.title||'Untitled chat';b.title=item.title||'Untitled chat';b.dataset.chatId=item.id;
+  if(item.id===conversationId)b.setAttribute('aria-current','true');
+  b.addEventListener('click',async()=>{closeMenu();await openConversation(item.id);});list.appendChild(b);
  }
 }
 async function openConversation(id){
  const {data,error}=await db.from('chat_messages').select('role,content').eq('conversation_id',id).order('created_at',{ascending:true});
  if(error){statusText.textContent='Could not load chat';return;}
  conversationId=id;history=(data||[]).map(m=>({role:m.role,content:m.content}));messages.replaceChildren();welcome.hidden=history.length>0;
- history.forEach(m=>addMessage(m.role,m.content));statusText.textContent='Chat history loaded';
+ history.forEach(m=>addMessage(m.role,m.content));welcome.hidden=history.length>0;scrollToLatest();statusText.textContent='Chat opened';
 }
-function paintProfile(p){profile=p;const name=p?.display_name||'Your profile';profileDisplayName.textContent=name;profileAvatar.textContent=(name.trim()[0]||'V').toUpperCase();profileDisplayName.title=name;}
+function paintProfile(p){profile=p;const name=p?.display_name||'Your profile';profileDisplayName.textContent=name;profileAvatar.textContent=(name.trim()[0]||'V').toUpperCase();profileDisplayName.title=name;document.getElementById('menuProfileName').textContent=name;document.getElementById('menuAvatar').textContent=(name.trim()[0]||'V').toUpperCase();document.getElementById('menuGreeting').textContent='Welcome, '+name;document.getElementById('menuProfileRole').textContent=p?.profession||'Personal workspace';}
 function openProfileEditor(){profileError.textContent='';profileNameInput.value=profile?.display_name||'';profileAgeInput.value=profile?.age_range||'';profileProfessionInput.value=profile?.profession||'';profilePanel.hidden=false;}
 async function loadProfile(){
  const {data,error}=await db.from('chat_profiles').select('display_name,age_range,profession').eq('user_id',user.id).maybeSingle();
@@ -176,6 +203,16 @@ profileForm.addEventListener('submit',async e=>{
  finally{profileSave.disabled=false;profileSave.innerHTML='Save profile <span aria-hidden="true">→</span>';}
 });
 document.getElementById('editProfileBtn').addEventListener('click',openProfileEditor);
+
+function openMenu(){document.getElementById('appMenu').hidden=false;document.getElementById('menuShade').hidden=false;document.getElementById('menuToggle').setAttribute('aria-expanded','true');document.body.style.overflow='hidden';}
+function closeMenu(){document.getElementById('appMenu').hidden=true;document.getElementById('menuShade').hidden=true;document.getElementById('menuToggle').setAttribute('aria-expanded','false');document.body.style.overflow='';}
+document.getElementById('menuToggle').addEventListener('click',()=>document.getElementById('appMenu').hidden?openMenu():closeMenu());
+document.getElementById('closeMenu').addEventListener('click',closeMenu);
+document.getElementById('menuShade').addEventListener('click',closeMenu);
+document.getElementById('menuEditProfile').addEventListener('click',()=>{closeMenu();openProfileEditor();});
+document.getElementById('menuSignOut').addEventListener('click',async()=>{closeMenu();await db.auth.signOut();user=null;conversationId=null;history=[];profile=null;messages.replaceChildren();welcome.hidden=false;showAuth('You have signed out.');});
+document.getElementById('newChatMenu').addEventListener('click',()=>{if(busy)return;history=[];conversationId=null;messages.replaceChildren();welcome.hidden=false;input.value='';resize();closeMenu();statusText.textContent='New chat';input.focus();});
+
 async function onSignedIn(session){
  user=session.user;authPanel.hidden=true;accountBar.hidden=false;statusText.textContent='Loading profile…';try{await loadProfile();}catch(err){profileError.textContent='Profile setup is temporarily unavailable: '+(err.message||'unknown error');profilePanel.hidden=false;}await loadConversations();statusText.textContent='Assistant ready';
 }
