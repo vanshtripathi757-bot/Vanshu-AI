@@ -28,3 +28,8 @@ Select Production in Vercel for production use; select Preview/Development too i
 Never commit API keys to GitHub or put them in client-side JavaScript. Keep all provider credentials in Vercel environment variables. The chat, agent, and speech API routes verify the Supabase bearer token server-side. A database-backed per-user limiter is configured for 20 chat requests/minute, 6 agent requests/minute, and 30 speech requests/minute.
 
 Before deploying these API changes, apply the SQL migrations in `supabase/migrations/` to the linked Supabase project in filename order. They tighten message/conversation ownership and install the shared rate-limit RPC. The code intentionally fails closed if the rate-limit RPC is not available, so applying the migrations is a deployment prerequisite. The migrations have been staged in the GitHub PR and have not been applied to production yet.
+
+
+### AI provider configuration
+
+Chat and agent routes prefer `OPENROUTER_API_KEY`; for backward compatibility, they also accept `INTELLIGENCE_API_KEY` and `AGENTIC_API_KEY`. Optional model overrides are `OPENROUTER_CHAT_MODEL` for chat and `OPENROUTER_AGENT_MODEL` for agent requests. Older `INTELLIGENCE_MODEL` and `AGENTIC_MODEL` values remain supported as fallbacks. If no model is set, both routes use `nvidia/nemotron-3.5-lightning:free`; provider availability and quotas still apply.
