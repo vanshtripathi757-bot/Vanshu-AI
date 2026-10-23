@@ -35,9 +35,9 @@ module.exports = async function handler(req, res) {
         "Accept": "audio/mpeg"
       },
       body: JSON.stringify({
-        model: process.env.OPENROUTER_TTS_MODEL || "openai/gpt-4o-mini-tts-2025-12-15",
+        model: process.env.OPENROUTER_TTS_MODEL || "microsoft/mai-voice-2.1-flash",
         input: text,
-        voice: process.env.OPENROUTER_TTS_VOICE || "alloy",
+        voice: process.env.OPENROUTER_TTS_VOICE || "en-US-Harper:MAI-Voice-2.1-Flash",
         response_format: "mp3"
       }),
       signal: controller.signal
