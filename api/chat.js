@@ -81,13 +81,10 @@ module.exports = async function handler(req, res) {
   let data; try { data = await response.json(); } catch { return res.status(502).json({ error: "The AI service returned an unreadable response." }); }
   const rawAnswer = String(data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content || "").trim();
   const answer = rawAnswer
-    .replace(/^#{1,6}[ \\t]*/gm, "")
-    .replace(/\\*{1,3}([^*\\n]+)\\*{1,3}/g, "$1")
-    .replace(/_{2}([^_\\n]+)_{2}/g, "$1")
-    .replace(/\x60{1,3}([^\x60]*?)\x60{1,3}/g, "$1")
-    .replace(/^[ \\t]*[-*+•][ \\t]+/gm, "")
-    .replace(/^[ \\t]*>+[ \\t]?/gm, "")
-    .replace(/\\n{3,}/g, "\\n\\n")
+    .split("\n").map(line => line.replace(/^\s{0,3}#{1,6}\s*/, "").replace(/^\s*[-*+•>]\s*/, "")).join("\n")
+    .replaceAll("**", "")
+    .replaceAll("__", "")
+    .replaceAll("`", "")
     .trim();
   if (!answer) return res.status(502).json({ error: "The AI service returned an empty response." });
   res.status(200); res.setHeader("Content-Type", "text/event-stream; charset=utf-8"); res.setHeader("Cache-Control", "no-cache, no-transform"); res.setHeader("Connection", "keep-alive"); res.setHeader("X-Accel-Buffering", "no");
