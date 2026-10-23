@@ -250,6 +250,53 @@ footer{padding:4px 0 16px}
 .composer .send:disabled,.send:disabled{opacity:.72;cursor:wait;box-shadow:none}
 @media(max-width:520px){.composer .send,.send{flex-basis:54px;width:54px;height:54px;min-width:54px;border-radius:50%}}
 
+
+/* Clean ChatGPT-inspired neutral workspace theme */
+:root{color-scheme:dark;--bg:#212121;--panel:#2f2f2f;--line:#414141;--text:#ececec;--muted:#a0a0a0}
+body{background:#212121;color:#ececec;font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.app{max-width:900px}
+header{border-bottom:1px solid #ffffff12}
+.logo,.orb{background:#343434;color:#f1f1f1;box-shadow:none}
+.orb{animation:none}
+.gradient{background:none;color:#ececec}
+.subtitle,.toolbar,.footnote,footer{color:#a0a0a0}
+.suggestion,.bubble,.composer,.app-menu,.account-profile,.auth-card{background:#2b2b2b;border-color:#414141;box-shadow:none}
+.suggestion:hover,.menu-action:hover{background:#353535;border-color:#505050}
+.suggestion{border-radius:14px;color:#ececec}
+.bubble{background:#2f2f2f;border-color:transparent;box-shadow:none}
+.user .bubble{background:#303030;border-color:transparent}
+.composer{border:1px solid #505050;border-radius:28px;background:#2f2f2f;box-shadow:none}
+.composer:focus-within{border-color:#777;box-shadow:0 0 0 1px #777}
+.composer-wrap{background:linear-gradient(transparent,#212121 20%)}
+.clear,.menu-action,.menu-close{background:#2f2f2f;border-color:#484848;color:#e6e6e6}
+.menu-new{background:#303030;border-color:#4b4b4b}
+.menu-new span:first-child{color:#e6e6e6}
+.menu-shade{background:#0009;backdrop-filter:blur(3px)}
+.app-menu{background:#242424;border-color:#414141}
+.menu-section-title{color:#999}
+.history-row{position:relative;overflow:visible}
+.history-open{color:#e5e5e5;border-radius:10px}
+.history-open:hover,.history-open[aria-current="true"]{background:#353535;border-color:transparent}
+.history-delete{display:none;position:absolute;z-index:60;right:8px;top:calc(100% - 2px);padding:9px 13px;border:1px solid #484848;border-radius:11px;background:#303030;color:#ffb4ab;font-size:13px;font-weight:550;box-shadow:0 10px 30px #0007;white-space:nowrap}
+.history-options-open .history-delete{display:block;animation:menu-in .13s ease-out}
+.history-options-open{background:transparent;border:1px solid #454545}
+.history-delete:hover{background:#3b2b2a}
+.avatar,.user .avatar{background:#393939;color:#e7e7e7;box-shadow:none}
+.send,.composer .send{
+ flex:0 0 46px;width:46px;height:46px;min-width:46px;padding:0;border:0;border-radius:50%;
+ display:grid;place-items:center;background:#f1f1f1;color:#202020;font-size:0;font-weight:600;box-shadow:none;
+ transition:background .16s,transform .16s;cursor:pointer
+}
+.send:before,.composer .send:before{
+ content:'↓';font-family:Arial,sans-serif;font-size:27px;font-weight:700;line-height:1;color:#202020;
+ transform:translateY(-1px);-webkit-text-stroke:0
+}
+.send:hover:not(:disabled),.composer .send:hover:not(:disabled){background:#fff;box-shadow:none;filter:none;transform:translateY(-1px)}
+.send:active:not(:disabled),.composer .send:active:not(:disabled){background:#d8d8d8;transform:scale(.96)}
+.send:disabled:before,.composer .send:disabled:before{content:'';width:17px;height:17px;border:2px solid #242424;border-right-color:transparent;border-radius:50%;animation:spin .7s linear infinite;transform:none;-webkit-text-stroke:0}
+.send:disabled,.composer .send:disabled{opacity:.7;cursor:wait;box-shadow:none}
+@media(max-width:560px){.send,.composer .send{flex-basis:46px;width:46px;height:46px;min-width:46px;border-radius:50%}.account-profile{background:#2b2b2b;border-color:#414141}}
+
 </style>
 <div class="profile-panel" id="profilePanel" hidden>
  <form class="profile-card" id="profileForm">
