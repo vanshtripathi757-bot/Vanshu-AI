@@ -1,6 +1,7 @@
 const MAX_MESSAGES = 12;
-const MAX_TOOL_ROUNDS = 3;
+const MAX_TOOL_ROUNDS = 4;
 const MAX_TEXT = 6000;
+const MAX_TOOL_CALLS_PER_ROUND = 3;
 
 function calculate(expression) {
   if (typeof expression !== "string" || expression.length > 160) throw new Error("Invalid calculation.");
@@ -83,7 +84,7 @@ module.exports = async function handler(req, res) {
         : wantsSearch && round === 0
           ? [...tools, {type:"openrouter:web_search",parameters:{engine:"auto",max_results:3,max_total_results:5,max_uses:1,search_context_size:"low"}}]
           : tools;
-      const requestBody = {model:baseModel,messages:[{role:"system",content:system},...messages],tools:requestTools,tool_choice:requestTools.length ? "auto" : "none",temperature:0.2,max_tokens:1400,max_tool_calls:requestTools.length ? (wantsSearch ? 1 : 3) : undefined};
+      const requestBody = {model:baseModel,messages:[{role:"system",content:system},...messages],tools:requestTools,tool_choice:requestTools.length ? "auto" : "none",temperature:0.2,max_tokens:1200,max_tool_calls:requestTools.length ? (wantsSearch ? 1 : MAX_TOOL_CALLS_PER_ROUND) : undefined};
       response = await fetch("https://openrouter.ai/api/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiKey,"HTTP-Referer":"https://vanshu-ai.vercel.app","X-Title":"Vanshu AI"},body:JSON.stringify(requestBody),signal:controller.signal});
     } catch (e) { clearTimeout(timer); return res.status(503).json({error:e && e.name==="AbortError" ? "OpenRouter request timed out." : "Could not reach OpenRouter."}); }
     clearTimeout(timer);
