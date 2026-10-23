@@ -1,7 +1,7 @@
 const MAX_MESSAGES = 16;
 const MAX_MESSAGE_LENGTH = 8000;
 const MAX_TOTAL_LENGTH = 24000;
-const MODEL_TIMEOUT_MS = 30000;
+const MODEL_TIMEOUT_MS = 50000;
 
 const requireAuth = require("../lib/require-auth");
 
