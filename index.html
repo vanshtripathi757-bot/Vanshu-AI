@@ -441,9 +441,9 @@ form.addEventListener('submit',async e=>{
  ];
  let progressStage=0;
  if(researchRequest){progressTimer=setInterval(()=>{if(busy&&pending.className.includes('typing')){progressStage=(progressStage+1)%researchStages.length;pending.textContent=researchStages[progressStage];scrollToLatest();}},2200);}
- const requestStartedAt=performance.now();let firstTokenAt=null;let responseTotalMs=null;
+ const requestStartedAt=performance.now();let firstTokenAt=null;let responseTotalMs=null;let userMessageSaved=false;
  try{
-  await saveMessage('user',text);
+  await saveMessage('user',text);userMessageSaved=true;
   const res=await fetch(agentMode?'/api/agent':'/api/chat',{method:'POST',headers:{'Content-Type':'application/json',...await apiAuthHeaders()},body:JSON.stringify({messages:history.slice(-16),profile,mode:agentMode?'agent':'chat'})});
   if(!res.ok){const data=await res.json().catch(()=>({}));throw new Error(data.error||'Request failed. Please try again.');}
   let answer='';
@@ -457,7 +457,7 @@ form.addEventListener('submit',async e=>{
   answer=answer.split('\n').map(line=>line.replace(/^\s{0,3}#{1,6}\s*/, '').replace(/^\s*[-*+•>]\s*/, '')).join('\n').replaceAll('**','').replaceAll('__','').replaceAll('`','').trim();
   if(!answer.trim())throw new Error('The AI did not return a response. Please try again.');
   pending.className='bubble';pending.textContent=answer;history.push({role:'assistant',content:answer});if(voiceModeEnabled){speakText(answer,null,true).catch(()=>{});}let saveWarning='';try{await saveMessage('assistant',answer);await loadConversations();}catch(saveError){saveWarning=' · response not saved to history';}const firstTokenLabel=firstTokenAt===null?'n/a':((firstTokenAt-requestStartedAt)/1000).toFixed(1)+'s';const totalLabel=(responseTotalMs/1000).toFixed(1)+'s';statusText.textContent='Ready · first text '+firstTokenLabel+' · response '+totalLabel+saveWarning;
- }catch(err){if(progressTimer)clearInterval(progressTimer);pending.className='bubble error';pending.textContent=err.message||'Something went wrong. Please try again.';if(history.length&&history[history.length-1].role==='user')history.pop();statusText.textContent='Could not save or send';}
+ }catch(err){if(progressTimer)clearInterval(progressTimer);pending.className='bubble error';pending.textContent=err.message||'Something went wrong. Please try again.';if(!userMessageSaved&&history.length&&history[history.length-1].role==='user')history.pop();statusText.textContent='Could not save or send';}
  finally{if(progressTimer)clearInterval(progressTimer);busy=false;sendBtn.disabled=false;input.focus();}
 });
 (async()=>{const {data,error}=await db.auth.getSession();if(error){showAuth('Could not check sign-in. Reload the page.','error');return;}if(data.session){await onSignedIn(data.session);}else{showAuth();}db.auth.onAuthStateChange((_event,session)=>{if(session&&!user){setTimeout(()=>{if(session&&!user)onSignedIn(session).catch(()=>showAuth('Signed in, but chat history could not load. Refresh and try again.','error'));},0);}});})();
