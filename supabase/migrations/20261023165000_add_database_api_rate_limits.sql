@@ -32,7 +32,7 @@ BEGIN
   CASE p_endpoint
     WHEN 'chat' THEN v_limit := 20;
     WHEN 'agent' THEN v_limit := 6;
-    WHEN 'speech' THEN v_limit := 30;
+    WHEN 'speech' THEN v_limit := 10;
     ELSE RAISE EXCEPTION 'Invalid rate-limit endpoint' USING ERRCODE = '22023';
   END CASE;
 
