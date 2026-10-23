@@ -13,9 +13,9 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed." });
   }
 
-  const apiKey = process.env.OPENROUTER_API_KEY || process.env.INTELLIGENCE_API_KEY;
-
   if (!(await requireAuth(req, res))) return;
+
+  const apiKey = process.env.OPENROUTER_API_KEY || process.env.INTELLIGENCE_API_KEY;
   if (!apiKey) {
     return res.status(503).json({ error: "Intelligence backend not configured. Add OPENROUTER_API_KEY in Vercel, then redeploy." });
   }
