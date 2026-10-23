@@ -25,7 +25,7 @@ jobs:
           from pathlib import Path
           import re
           html = Path("index.html").read_text(encoding="utf-8")
-          scripts = re.findall(r"<script(?:\\s[^>]*)?>(.*?)</script>", html, re.S | re.I)
+          scripts = re.findall(r"<script(?:\s[^>]*)?>(.*?)</script>", html, re.S | re.I)
           if not scripts:
               raise SystemExit("No inline script found in index.html")
           Path("/tmp/vanshu-frontend.js").write_text(scripts[-1], encoding="utf-8")
