@@ -9,13 +9,10 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed." });
   }
 
-  // Keep the key server-side. The env name intentionally matches the one
-  // already configured in Vercel: OPENRPUTER_SPEECH_AI.
+  // The API key stays server-side. This name matches the Vercel environment variable.
   const apiKey = process.env.OPENRPUTER_SPEECH_AI;
   if (!apiKey) {
-    return res.status(503).json({
-      error: "Voice replies are not configured. Add OPENRPUTER_SPEECH_AI to Vercel and redeploy."
-    });
+    return res.status(503).json({ error: "Voice replies are not configured. Add OPENRPUTER_SPEECH_AI to Vercel and redeploy." });
   }
 
   const body = req.body || {};
@@ -48,9 +45,7 @@ module.exports = async function handler(req, res) {
   } catch (error) {
     clearTimeout(timer);
     return res.status(error && error.name === "AbortError" ? 504 : 503).json({
-      error: error && error.name === "AbortError"
-        ? "Voice generation timed out. Please try again."
-        : "Could not connect to the speech service."
+      error: error && error.name === "AbortError" ? "Voice generation timed out. Please try again." : "Could not connect to the speech service."
     });
   }
   clearTimeout(timer);
@@ -61,18 +56,10 @@ module.exports = async function handler(req, res) {
       const data = await response.json();
       detail = String(data && data.error && (data.error.message || data.error) || "");
     } catch {}
-    if (response.status === 401 || response.status === 403) {
-      return res.status(502).json({ error: "OpenRouter rejected OPENRPUTER_SPEECH_AI. Check that the configured key is valid." });
-    }
-    if (response.status === 402) {
-      return res.status(503).json({ error: "OpenRouter TTS requires available credits or an eligible plan." });
-    }
-    if (response.status === 429) {
-      return res.status(503).json({ error: "The speech service rate limit was reached. Please try again shortly." });
-    }
-    return res.status(503).json({
-      error: "OpenRouter TTS failed (" + response.status + "). " + detail.slice(0, 160)
-    });
+    if (response.status === 401 || response.status === 403) return res.status(502).json({ error: "OpenRouter rejected OPENRPUTER_SPEECH_AI. Check that the configured key is valid." });
+    if (response.status === 402) return res.status(503).json({ error: "OpenRouter TTS requires available credits or an eligible plan." });
+    if (response.status === 429) return res.status(503).json({ error: "The speech service rate limit was reached. Please try again shortly." });
+    return res.status(503).json({ error: "OpenRouter TTS failed (" + response.status + "). " + detail.slice(0, 160) });
   }
 
   const contentType = String(response.headers.get("content-type") || "").split(";")[0].trim().toLowerCase();
@@ -80,22 +67,14 @@ module.exports = async function handler(req, res) {
     try { await response.body?.cancel(); } catch {}
     return res.status(502).json({ error: "The speech service returned an unexpected audio format." });
   }
-
   let audio;
-  try {
-    audio = Buffer.from(await response.arrayBuffer());
-  } catch {
-    return res.status(502).json({ error: "Could not read the generated audio. Please try again." });
-  }
+  try { audio = Buffer.from(await response.arrayBuffer()); }
+  catch { return res.status(502).json({ error: "Could not read the generated audio. Please try again." }); }
   if (!audio.length) return res.status(502).json({ error: "The speech service returned empty audio." });
 
   res.status(200);
   res.setHeader("Content-Type", "audio/mpeg");
   res.setHeader("Content-Length", String(audio.length));
   res.setHeader("Content-Disposition", "inline; filename=answer.mp3");
-  const generationId = response.headers.get("x-generation-id");
-  if (generationId && /^[a-zA-Z0-9_-]{1,120}$/.test(generationId)) {
-    res.setHeader("X-Generation-Id", generationId);
-  }
   return res.send(audio);
 };
