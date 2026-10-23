@@ -106,6 +106,6 @@ form.addEventListener('submit',async e=>{
  }catch(err){pending.className='bubble error';pending.textContent=err.message||'Something went wrong. Please try again.';if(history.length&&history[history.length-1].role==='user')history.pop();statusText.textContent='Could not save or send';}
  finally{busy=false;sendBtn.disabled=false;input.focus();}
 });
-(async()=>{const {data,error}=await db.auth.getSession();if(error){showAuth('Could not check sign-in. Reload the page.');return;}if(data.session)await onSignedIn(data.session);else showAuth();db.auth.onAuthStateChange((_event,session)=>{if(session&&!user)onSignedIn(session);});})();
+(async()=>{const {data,error}=await db.auth.getSession();if(error){showAuth('Could not check sign-in. Reload the page.','error');return;}if(data.session){await onSignedIn(data.session);}else{showAuth();}db.auth.onAuthStateChange((_event,session)=>{if(session&&!user){setTimeout(()=>{if(session&&!user)onSignedIn(session).catch(()=>showAuth('Signed in, but chat history could not load. Refresh and try again.','error'));},0);}});})();
 })();
 </script></body></html>
