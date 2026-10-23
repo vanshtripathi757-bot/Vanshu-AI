@@ -46,7 +46,7 @@ module.exports = async function handler(req, res) {
       res.write("data: "+JSON.stringify({candidates:[{content:{parts:[{text:answer}]}}]})+"\n\n"); res.write("data: [DONE]\n\n"); return res.end();
     } catch {}
   }
-  const apiKey = process.env.OPENROUTER_API_KEY || process.env.AGENTIC_API_KEY;
+  const apiKey = process.env.OPENROUTER_API_KEY || process.env.INTELLIGENCE_API_KEY || process.env.AGENTIC_API_KEY;
   if (!apiKey) return res.status(503).json({error:"Agent backend not configured. Add OPENROUTER_API_KEY in Vercel, then redeploy."});
   const messages = []; let total = 0;
   for (const item of body.messages.slice(-MAX_MESSAGES)) {
@@ -75,8 +75,8 @@ module.exports = async function handler(req, res) {
   const wantsSearch = /search|research|latest|current|recent|sources|source links|web|news|today|this week/i.test(lastText);
   const isComplexTask = wantsSearch || /\b(code|coding|debug|fix|build|create|website|app|project|multi[- ]?step|analy[sz]e|compare|plan|research)\b/i.test(lastText);
   const baseModel = isComplexTask
-    ? (process.env.AGENTIC_MODEL || process.env.OPENROUTER_AGENT_MODEL || process.env.OPENROUTER_FAST_MODEL || process.env.OPENROUTER_MODEL || "nvidia/nemotron-3.5-lightning:free")
-    : (process.env.OPENROUTER_FAST_MODEL || process.env.OPENROUTER_MODEL || "nvidia/nemotron-3-ultra-550b-a55b:free");
+    ? (process.env.OPENROUTER_AGENT_MODEL || process.env.AGENTIC_MODEL || process.env.OPENROUTER_MODEL || process.env.OPENROUTER_FAST_MODEL || "nvidia/nemotron-3.5-lightning:free")
+    : (process.env.OPENROUTER_AGENT_MODEL || process.env.OPENROUTER_MODEL || process.env.OPENROUTER_FAST_MODEL || "nvidia/nemotron-3.5-lightning:free");
   const executed = []; let finalText = "";
   // Keep multi-round agent work inside the configured 60-second serverless limit.
   const deadline = Date.now() + 52000;
