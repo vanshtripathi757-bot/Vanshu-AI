@@ -42,8 +42,8 @@ module.exports = async function handler(req, res) {
       res.write("data: "+JSON.stringify({candidates:[{content:{parts:[{text:answer}]}}]})+"\n\n"); res.write("data: [DONE]\n\n"); return res.end();
     } catch {}
   }
-  const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey) return res.status(503).json({error:"Agent backend not configured. Add OPENROUTER_API_KEY in Vercel Environment Variables and redeploy."});
+  const apiKey = process.env.AGENTIC_API_KEY || process.env.OPENROUTER_API_KEY;
+  if (!apiKey) return res.status(503).json({error:"Agent backend not configured. Add AGENTIC_API_KEY (an OpenRouter-compatible key) or OPENROUTER_API_KEY in Vercel, then redeploy."});
   const messages = []; let total = 0;
   for (const item of body.messages.slice(-MAX_MESSAGES)) {
     if (!item || !["user","assistant"].includes(item.role) || typeof item.content !== "string") return res.status(400).json({error:"Invalid chat message format."});
@@ -71,7 +71,7 @@ module.exports = async function handler(req, res) {
   const wantsSearch = /search|research|latest|current|recent|sources|source links|web|news|today|this week/i.test(lastText);
   const isComplexTask = wantsSearch || /\\b(code|coding|debug|fix|build|create|website|app|project|multi[- ]?step|analy[sz]e|compare|plan|research)\\b/i.test(lastText);
   const baseModel = isComplexTask
-    ? (process.env.OPENROUTER_AGENT_MODEL || process.env.OPENROUTER_MODEL || "openrouter/auto")
+    ? (process.env.AGENTIC_MODEL || process.env.OPENROUTER_AGENT_MODEL || process.env.OPENROUTER_MODEL || "openrouter/auto")
     : (process.env.OPENROUTER_FAST_MODEL || process.env.OPENROUTER_MODEL || "openrouter/auto");
   const executed = []; let finalText = "";
   for (let round=0; round<MAX_TOOL_ROUNDS; round++) {
