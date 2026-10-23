@@ -1,1 +1,28 @@
-# Vanshu AI\n\nA mobile-friendly personal AI chat app powered by Gemini. This repository is separate from the portfolio project.\n\n## Features\n\n- Responsive dark chat interface with suggested prompts\n- Multi-turn context for the current chat\n- Server-side Gemini integration; the API key is never sent to the browser\n- Request validation and useful API errors\n- Deployable as a Vercel project\n\n## Deploy to Vercel\n\n1. Import this repository: https://github.com/vanshtripathi757-bot/Vanshu-AI\n2. Create a NEW project named `vanshu-ai`. Do not reuse the portfolio project.\n3. In Settings → Environment Variables, add `GEMINI_API_KEY` with your key from Google AI Studio. Select Production (and Preview/Development if needed).\n4. Redeploy after saving the variable.\n5. Open the deployment URL and send a test message.\n\nThe API currently calls Google's Gemini REST endpoint using `gemini-3.8-flash`. If the model is unavailable for your key or region, change the model ID in `api/chat.js` to one listed in the official Gemini API docs.\n\n## Local preview\n\nOpening `index.html` alone previews the UI only. AI replies require the Vercel serverless route at `/api/chat`. For local backend testing, use Vercel's local development tooling and set `GEMINI_API_KEY` in your environment. Never commit the key to GitHub.\n\n## Security notes\n\n- Never put the Gemini key in `index.html` or client-side JavaScript.\n- This starter validates inputs and keeps the key server-side. Add persistent rate limiting and abuse protection before sharing it widely.\n- Chat history exists only in browser memory and resets on reload or New chat.\n
+# Vanshu AI
+
+A mobile-friendly personal AI assistant with chat mode, agent mode, saved conversations, and browser-based speech input/output.
+
+## Vercel environment variables
+
+- `INTELLIGENCE_API_KEY`: Chat mode key. This route expects an OpenRouter-compatible API key. If omitted, it falls back to `OPENROUTER_API_KEY`.
+- `AGENTIC_API_KEY`: Agent mode key. This route expects an OpenRouter-compatible API key. If omitted, it falls back to `OPENROUTER_API_KEY`.
+- `INTELLIGENCE_MODEL`: Optional model ID for chat mode.
+- `AGENTIC_MODEL`: Optional model ID for agent mode. Existing `OPENROUTER_AGENT_MODEL` and `OPENROUTER_MODEL` remain fallbacks.
+- `OPENROUTER_API_KEY`: Shared fallback key for either route.
+- `SPEECH_API_KEY`: Reserved for a future external speech provider integration. The current voice input and read-aloud features use browser speech capabilities and do not consume this key.
+- Legacy `GEMINI_API_KEY` is not used by the current chat/agent routes.
+
+Select Production in Vercel for production use; select Preview/Development too if you test those environments. Redeploy after changing environment variables. Chat and agent keys must be valid for the OpenRouter-compatible endpoint. Separate API keys do not automatically add provider credits or quota.
+
+## Features
+
+- Responsive, mobile-friendly chat UI
+- Separate Chat and Agent modes
+- Multi-turn context and saved chat history
+- Browser speech recognition for voice input where supported
+- Browser text-to-speech for assistant replies
+- Request validation and provider error handling
+
+## Security
+
+Never commit API keys to GitHub or put them in client-side JavaScript. Keep all provider credentials in Vercel environment variables. Add rate limiting before making the app public.
