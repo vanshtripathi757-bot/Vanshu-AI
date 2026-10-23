@@ -32,7 +32,7 @@ module.exports = async function handler(req, res) {
   const lastUser = [...body.messages].reverse().find(item => item && item.role === "user" && typeof item.content === "string");
   const lastText = lastUser ? lastUser.content : "";
   const normalizedMath = lastText.replace(/×/g, "*").replace(/÷/g, "/").replace(/[−–]/g, "-");
-  const matchMath = /\(?\s*\d+(?:\.\d+)?(?:\s*[+\-*/%^]\s*\d+(?:\.\d+)?)+\s*\)?(?:\s*[+\-*/%^]\s*\d+(?:\.\d+)?)* /.exec(normalizedMath);
+  const matchMath = /\(?\s*\d+(?:\.\d+)?(?:\s*[+\-*/%^]\s*\d+(?:\.\d+)?)+\s*\)?(?:\s*[+\-*/%^]\s*\d+(?:\.\d+)?)*\s*/.exec(normalizedMath);
   if (/\b(compute|calculate|calculator|evaluate|math)\b/i.test(lastText) && matchMath) {
     try {
       const expression = matchMath[0].trim();
