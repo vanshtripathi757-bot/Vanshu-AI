@@ -1,6 +1,8 @@
 const MAX_TEXT_LENGTH = 3500;
 const REQUEST_TIMEOUT_MS = 25000;
 
+const requireAuth = require("../lib/require-auth");
+
 module.exports = async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
   res.setHeader("X-Content-Type-Options", "nosniff");
@@ -9,7 +11,9 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed." });
   }
 
-  // The API key stays server-side. This name matches the Vercel environment variable.
+  // The API key stays server-side.
+
+  if (!(await requireAuth(req, res))) return; This name matches the Vercel environment variable.
   const apiKey = process.env.OPENRPUTER_SPEECH_AI;
   if (!apiKey) {
     return res.status(503).json({ error: "Voice replies are not configured. Add OPENRPUTER_SPEECH_AI to Vercel and redeploy." });
