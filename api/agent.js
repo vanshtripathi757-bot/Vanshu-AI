@@ -1,5 +1,5 @@
 const MAX_MESSAGES = 12;
-const MAX_TOOL_ROUNDS = 4;
+const MAX_TOOL_ROUNDS = 2;
 const MAX_TEXT = 6000;
 
 function calculate(expression) {
@@ -60,7 +60,7 @@ module.exports = async function handler(req, res) {
     {type:"function",function:{name:"calculator",description:"Evaluate a basic arithmetic expression.",parameters:{type:"object",properties:{expression:{type:"string",description:"Numbers and + - * / % ^ parentheses."}},required:["expression"]}}},
     {type:"function",function:{name:"make_plan",description:"Create a concise ordered plan for a task.",parameters:{type:"object",properties:{goal:{type:"string"},steps:{type:"array",items:{type:"string"}}},required:["goal","steps"]}}}
   ];
-  const wantsSearch = /search|research|latest|current|recent|sources|source links|web/i.test(lastText);
+  const wantsSearch = /search|research|latest|current|recent|sources|source links|web|news|today|this week/i.test(lastText);
   const baseModel = process.env.OPENROUTER_MODEL || "openrouter/auto";
   const executed = []; let finalText = "";
   for (let round=0; round<MAX_TOOL_ROUNDS; round++) {
@@ -70,7 +70,7 @@ module.exports = async function handler(req, res) {
       const requestTools = wantsSearch
         ? [...tools, {type:"openrouter:web_search",parameters:{engine:"auto",max_results:5}}]
         : tools;
-      const requestBody = {model:baseModel,messages:[{role:"system",content:system},...messages],tools:requestTools,tool_choice:"auto",temperature:0.3,max_tokens:1400,max_tool_calls:wantsSearch ? 3 : 4};
+      const requestBody = {model:baseModel,messages:[{role:"system",content:system},...messages],tools:requestTools,tool_choice:"auto",temperature:0.3,max_tokens:1000,max_tool_calls:wantsSearch ? 2 : 3};
       response = await fetch("https://openrouter.ai/api/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiKey,"HTTP-Referer":"https://vanshu-ai.vercel.app","X-Title":"Vanshu AI"},body:JSON.stringify(requestBody),signal:controller.signal});
     } catch (e) { clearTimeout(timer); return res.status(503).json({error:e && e.name==="AbortError" ? "OpenRouter request timed out." : "Could not reach OpenRouter."}); }
     clearTimeout(timer);
