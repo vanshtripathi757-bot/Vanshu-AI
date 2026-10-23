@@ -31,7 +31,7 @@ let history=[],busy=false,user=null,conversationId=null;
 function scrollToLatest(){requestAnimationFrame(()=>{const last=messages.lastElementChild;if(last)last.scrollIntoView({behavior:'smooth',block:'end'});});}
 function addMessage(role,text,extra=''){const row=document.createElement('div');row.className='message '+role;const avatar=document.createElement('div');avatar.className='avatar';avatar.textContent=role==='user'?'YOU':'V';const bubble=document.createElement('div');bubble.className='bubble '+extra;bubble.textContent=text;row.append(avatar,bubble);messages.appendChild(row);scrollToLatest();return bubble}
 function resize(){input.style.height='auto';input.style.height=Math.min(input.scrollHeight,160)+'px'}
-function showAuth(message=''){authPanel.hidden=false;authError.textContent=message;accountBar.hidden=true;}
+function showAuth(message='',kind='error'){authPanel.hidden=false;authError.dataset.kind=message?kind:'';authError.textContent=message;accountBar.hidden=true;}
 async function ensureConversation(firstText){
  if(conversationId) return conversationId;
  const title=firstText.trim().replace(/\s+/g,' ').slice(0,60)||'New chat';
@@ -70,22 +70,22 @@ async function authRequest(action){
  const email=authEmail.value.trim(),password=authPassword.value;
  if(!email||!password){authError.textContent='Enter your email and password first.';return;}
  setAuthBusy(true,action==='signin'?'Signing in…':'Creating…');
- authError.textContent=action==='signin'?'Connecting securely…':'Creating your account…';
+ showAuth(action==='signin'?'Connecting securely…':'Creating your account…','status');
  try{
   const request=action==='signin'
    ?db.auth.signInWithPassword({email,password})
    :db.auth.signUp({email,password});
   let timeoutId;
-  const timeout=new Promise((_,reject)=>{timeoutId=setTimeout(()=>reject(new Error('Supabase did not respond within 10 seconds. Check your connection, then reload and try again.')),10000);});
+  const timeout=new Promise((_,reject)=>{timeoutId=setTimeout(()=>reject(new Error('Supabase did not respond within 8 seconds. Check your internet connection, then reload and try again.')),8000);});
   let result;
   try { result=await Promise.race([request,timeout]); }
   finally { clearTimeout(timeoutId); }
   const {data,error}=result;
-  if(error){authError.textContent=error.message;return;}
-  if(action==='signup'&&!data.session){authError.textContent='Account created. Check your email for the confirmation link, then return here and sign in.';return;}
-  if(!data.session){authError.textContent='No active session was returned. Try signing in again.';return;}
+  if(error){showAuth(error.message,'error');return;}
+  if(action==='signup'&&!data.session){showAuth('Account created. Check your email for the confirmation link, then return here and sign in.','status');return;}
+  if(!data.session){showAuth('No active session was returned. Try signing in again.','error');return;}
   await onSignedIn(data.session);
- }catch(error){authError.textContent=error?.message||'Could not connect to authentication. Please reload and try again.';}
+ }catch(error){showAuth(error?.message||'Could not connect to authentication. Please reload and try again.','error');}
  finally{setAuthBusy(false);}
 }
 authForm.addEventListener('submit',e=>{e.preventDefault();authRequest('signin');});
