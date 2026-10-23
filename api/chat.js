@@ -3,6 +3,8 @@ const MAX_MESSAGE_LENGTH = 8000;
 const MAX_TOTAL_LENGTH = 24000;
 const MODEL_TIMEOUT_MS = 30000;
 
+const requireAuth = require("../lib/require-auth");
+
 module.exports = async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
   res.setHeader("X-Content-Type-Options", "nosniff");
@@ -12,6 +14,8 @@ module.exports = async function handler(req, res) {
   }
 
   const apiKey = process.env.OPENROUTER_API_KEY || process.env.INTELLIGENCE_API_KEY;
+
+  if (!(await requireAuth(req, res))) return;
   if (!apiKey) {
     return res.status(503).json({ error: "Intelligence backend not configured. Add OPENROUTER_API_KEY in Vercel, then redeploy." });
   }
