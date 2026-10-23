@@ -1,7 +1,7 @@
 const MAX_MESSAGES = 16;
 const MAX_MESSAGE_LENGTH = 8000;
 const MAX_TOTAL_LENGTH = 24000;
-const MODEL_TIMEOUT_MS = 25000;
+const MODEL_TIMEOUT_MS = 45000;
 
 module.exports = async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
@@ -63,7 +63,7 @@ module.exports = async function handler(req, res) {
     response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json", "Authorization": "Bearer " + apiKey, "HTTP-Referer": "https://vanshu-ai.vercel.app", "X-Title": "Vanshu AI" },
-      body: JSON.stringify({ model: process.env.INTELLIGENCE_MODEL || process.env.OPENROUTER_FAST_MODEL || process.env.OPENROUTER_MODEL || "openrouter/free", messages: [{ role: "system", content: system }, ...messages], temperature: 0.6, max_tokens: 900 }),
+      body: JSON.stringify({ model: process.env.INTELLIGENCE_MODEL || process.env.OPENROUTER_FAST_MODEL || process.env.OPENROUTER_MODEL || "nvidia/nemotron-3-ultra-550b-a55b:free", messages: [{ role: "system", content: system }, ...messages], temperature: 0.4, max_tokens: 1600 }),
       signal: controller.signal
     });
   } catch (error) {
