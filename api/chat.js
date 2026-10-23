@@ -64,6 +64,8 @@ module.exports = async function handler(req, res) {
   let sawTimeout = false;
   for (const model of MODELS) {
     let response;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), MODEL_TIMEOUT_MS);
     try {
       response = await fetch(
         "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":streamGenerateContent?alt=sse",
@@ -71,17 +73,20 @@ module.exports = async function handler(req, res) {
           method: "POST",
           headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
           body: JSON.stringify(payload),
-          signal: AbortSignal.timeout(MODEL_TIMEOUT_MS)
+          signal: controller.signal
         }
       );
     } catch (error) {
       if (error?.name === "TimeoutError" || error?.name === "AbortError") {
         sawTimeout = true;
-        lastMessage = model + " timed out.";
+        lastMessage = model + " timed out before streaming began.";
         continue;
       }
       lastMessage = "Could not reach Gemini: " + (error?.message || "network error");
       continue;
+    } finally {
+      // Limit the connection/header wait, not the full response stream.
+      clearTimeout(timeoutId);
     }
 
     if (response.ok && response.body) {
