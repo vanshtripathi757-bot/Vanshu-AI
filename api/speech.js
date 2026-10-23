@@ -12,7 +12,7 @@ module.exports = async function handler(req, res) {
   }
 
   // The API key stays server-side. This name matches the Vercel environment variable.
-  if (!(await requireAuth(req, res))) return;
+  if (!(await requireAuth(req, res, "speech"))) return;
   const apiKey = process.env.OPENRPUTER_SPEECH_AI;
   if (!apiKey) {
     return res.status(503).json({ error: "Voice replies are not configured. Add OPENRPUTER_SPEECH_AI to Vercel and redeploy." });
