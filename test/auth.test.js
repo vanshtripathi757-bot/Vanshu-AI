@@ -119,7 +119,7 @@ test("rate-limit migration uses fixed quotas and denies direct table access", ()
   assert.match(sql, /REVOKE ALL ON TABLE public\.api_rate_limits FROM PUBLIC, anon, authenticated/i);
   assert.match(sql, /WHEN 'chat' THEN v_limit := 20/i);
   assert.match(sql, /WHEN 'agent' THEN v_limit := 6/i);
-  assert.match(sql, /WHEN 'speech' THEN v_limit := 30/i);
+  assert.match(sql, /WHEN 'speech' THEN v_limit := 10/i);
   assert.match(sql, /auth\.uid\(\)/i);
   assert.match(sql, /REVOKE ALL ON FUNCTION public\.consume_api_rate_limit\(text\) FROM PUBLIC, anon/i);
   assert.match(sql, /GRANT EXECUTE ON FUNCTION public\.consume_api_rate_limit\(text\) TO authenticated/i);
