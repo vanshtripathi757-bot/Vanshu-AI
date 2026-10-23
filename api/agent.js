@@ -96,7 +96,8 @@ module.exports = async function handler(req, res) {
       if (response.status===400) return res.status(502).json({error:"OpenRouter rejected the request format or selected model. Details: "+detail.slice(0,220)});
       return res.status(503).json({error:"OpenRouter request failed with status "+response.status+". Details: "+detail.slice(0,220)});
     }
-    const data=await response.json(); const message=data && data.choices && data.choices[0] && data.choices[0].message || {};
+    let data; try { data = await response.json(); } catch { return res.status(502).json({error:"OpenRouter returned an unreadable response."}); }
+    const message=data && data.choices && data.choices[0] && data.choices[0].message || {};
     const calls=Array.isArray(message.tool_calls) ? message.tool_calls : [];
     if (!calls.length) { finalText=String(message.content || "").trim(); break; }
     if (round === MAX_TOOL_ROUNDS - 1) {
@@ -117,19 +118,11 @@ module.exports = async function handler(req, res) {
   }
   if (!finalText) finalText="I could not complete this agent run within the tool-step limit. Please narrow the task and try again.";
   finalText = finalText
-    .replace(/^#{1,6}[ \\t]*/gm, "")
-    .replace(/\\*{1,3}([^*\\n]+)\\*{1,3}/g, "$1")
-    .replace(/_{2}([^_\\n]+)_{2}/g, "$1")
-    .replace(/\x60{1,3}([^\x60]*?)\x60{1,3}/g, "$1")
-    .replace(/^[ \\t]*[-*+•][ \\t]+/gm, "")
-    .replace(/^[ \\t]*>+[ \\t]?/gm, "")
-    .replace(/\\$/g, "")
-    .replace(/verified (?:by|with) the calculator tool\\.?/gi, "")
-    .replace(/\\(?verified with calculator tool\\)?/gi, "")
-    .replace(/Tools used:.*$/gim, "")
-    .replace(/Calculator:.*$/gim, "")
-    .replace(/Created a plan with.*$/gim, "")
-    .replace(/\\n{3,}/g, "\\n\\n")
+    .split("\n").map(line => line.replace(/^\s{0,3}#{1,6}\s*/, "").replace(/^\s*[-*+•>]\s*/, "")).join("\n")
+    .replaceAll("**", "")
+    .replaceAll("__", "")
+    .replaceAll("`", "")
+    .replace(/\n{3,}/g, "\n\n")
     .trim();
   // Keep internal tool execution details out of the user-facing answer.
   res.status(200); res.setHeader("Content-Type","text/event-stream; charset=utf-8"); res.setHeader("Cache-Control","no-cache, no-transform"); res.setHeader("Connection","keep-alive"); res.setHeader("X-Accel-Buffering","no");
