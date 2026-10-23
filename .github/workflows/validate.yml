@@ -19,6 +19,9 @@ jobs:
           node --check api/chat.js
           node --check api/agent.js
           node --check api/speech.js
+          node --check lib/require-auth.js
+      - name: Run authentication tests
+        run: node --test test/*.test.js
       - name: Check inline frontend JavaScript syntax
         run: |
           python3 - <<'PY'
