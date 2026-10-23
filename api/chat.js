@@ -11,9 +11,9 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed." });
   }
 
-  const apiKey = process.env.INTELLIGENCE_API_KEY || process.env.OPENROUTER_API_KEY;
+  const apiKey = process.env.OPENROUTER_API_KEY || process.env.INTELLIGENCE_API_KEY;
   if (!apiKey) {
-    return res.status(503).json({ error: "Intelligence backend not configured. Add INTELLIGENCE_API_KEY (an OpenRouter-compatible key) or OPENROUTER_API_KEY in Vercel, then redeploy." });
+    return res.status(503).json({ error: "Intelligence backend not configured. Add OPENROUTER_API_KEY in Vercel, then redeploy." });
   }
 
   const body = req.body || {};
@@ -63,7 +63,7 @@ module.exports = async function handler(req, res) {
     response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json", "Authorization": "Bearer " + apiKey, "HTTP-Referer": "https://vanshu-ai.vercel.app", "X-Title": "Vanshu AI" },
-      body: JSON.stringify({ model: process.env.OPENROUTER_FAST_MODEL || process.env.INTELLIGENCE_MODEL || process.env.OPENROUTER_MODEL || "nvidia/nemotron-3-ultra-550b-a55b:free", messages: [{ role: "system", content: system }, ...messages], temperature: 0.3, max_tokens: 700 }),
+      body: JSON.stringify({ model: process.env.OPENROUTER_FAST_MODEL || process.env.INTELLIGENCE_MODEL || process.env.OPENROUTER_MODEL || "nvidia/nemotron-3.5-lightning:free", messages: [{ role: "system", content: system }, ...messages], temperature: 0.3, max_tokens: 700 }),
       signal: controller.signal
     });
   } catch (error) {
