@@ -124,3 +124,10 @@ test("rate-limit migration uses fixed quotas and denies direct table access", ()
   assert.match(sql, /REVOKE ALL ON FUNCTION public\.consume_api_rate_limit\(text\) FROM PUBLIC, anon/i);
   assert.match(sql, /GRANT EXECUTE ON FUNCTION public\.consume_api_rate_limit\(text\) TO authenticated/i);
 });
+
+test("saved user messages remain in in-memory history after an upstream failure", () => {
+  const html = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
+  assert.match(html, /let userMessageSaved=false/);
+  assert.match(html, /await saveMessage\('user',text\);userMessageSaved=true/);
+  assert.match(html, /if\(!userMessageSaved&&history\.length&&history\[history\.length-1\]\.role==='user'\)history\.pop\(\)/);
+});
