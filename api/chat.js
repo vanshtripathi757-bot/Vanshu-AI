@@ -62,7 +62,7 @@ module.exports = async function handler(req, res) {
     response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json", "Authorization": "Bearer " + apiKey, "HTTP-Referer": "https://vanshu-ai.vercel.app", "X-Title": "Vanshu AI" },
-      body: JSON.stringify({ model: process.env.INTELLIGENCE_MODEL || process.env.OPENROUTER_FAST_MODEL || process.env.OPENROUTER_MODEL || "openrouter/auto", messages: [{ role: "system", content: system }, ...messages], temperature: 0.6, max_tokens: 900 }),
+      body: JSON.stringify({ model: process.env.INTELLIGENCE_MODEL || process.env.OPENROUTER_FAST_MODEL || process.env.OPENROUTER_MODEL || "openrouter/free", messages: [{ role: "system", content: system }, ...messages], temperature: 0.6, max_tokens: 900 }),
       signal: controller.signal
     });
   } catch (error) {
