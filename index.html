@@ -156,6 +156,22 @@ footer{padding:4px 0 16px}
 .clear:hover{background:#1b2941;border-color:#6b83b4}
 @media(max-width:520px){.auth-card{padding:24px 20px;border-radius:24px}.auth-card:before{width:52px;height:52px;border-radius:17px;margin-bottom:17px}.auth-actions{grid-template-columns:1fr}.auth-actions button{min-height:46px}.composer .send,.send{flex-basis:48px;width:48px;height:48px;min-width:48px;border-radius:16px}}
 
+
+/* Theme-only send button polish: keep existing shape and icon */
+.composer .send,.send{
+  background:linear-gradient(135deg,#63b3ff 0%,#788dff 48%,#a17cff 100%);
+  border:1px solid #b8c8ff66;
+  color:#080f20;
+  box-shadow:0 5px 18px #718dff30,inset 0 1px 0 #ffffff42;
+}
+.composer .send:hover:not(:disabled),.send:hover:not(:disabled){
+  background:linear-gradient(135deg,#78c0ff 0%,#8798ff 48%,#b08aff 100%);
+  box-shadow:0 7px 22px #718dff40,inset 0 1px 0 #ffffff55;
+}
+.composer .send:active:not(:disabled),.send:active:not(:disabled){
+  background:linear-gradient(135deg,#559eea 0%,#6f7ce9 48%,#9068e8 100%);
+}
+
 </style>
 <div class="profile-panel" id="profilePanel" hidden>
  <form class="profile-card" id="profileForm">
