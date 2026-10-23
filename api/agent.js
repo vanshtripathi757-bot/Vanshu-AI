@@ -32,7 +32,8 @@ module.exports = async function handler(req, res) {
   const lastText = lastUser ? lastUser.content : "";
   const normalizedMath = lastText.replace(/×/g, "*").replace(/÷/g, "/").replace(/[−–]/g, "-");
   const mathMatch = /\(?\s*\d+(?:\.\d+)?(?:\s*[+\-*/%^]\s*\d+(?:\.\d+)?)+\s*\)?/.exec(normalizedMath);
-  if (/\b(compute|calculate|calculator|evaluate|math)\b/i.test(lastText) && mathMatch) {
+  const calculationOnly = !/\b(and|then|also|plan|steps?|research|search|website|portfolio|explain|describe|create|build|write|summarize|compare|analy[sz]e|multi[- ]?step)\b/i.test(lastText);
+  if (/\b(compute|calculate|calculator|evaluate|math)\b/i.test(lastText) && mathMatch && calculationOnly) {
     try {
       const expression = mathMatch[0].trim();
       const value = calculate(expression);
