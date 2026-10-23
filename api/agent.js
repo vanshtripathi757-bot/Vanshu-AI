@@ -27,10 +27,29 @@ module.exports = async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
   res.setHeader("X-Content-Type-Options", "nosniff");
   if (req.method !== "POST") { res.setHeader("Allow", "POST"); return res.status(405).json({error:"Method not allowed."}); }
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return res.status(503).json({error:"AI backend not configured. Add GEMINI_API_KEY in Vercel Environment Variables."});
   const body = req.body || {};
   if (!Array.isArray(body.messages) || !body.messages.length) return res.status(400).json({error:"Send at least one message."});
+  const lastUser = [...body.messages].reverse().find(item => item && item.role === "user" && typeof item.content === "string");
+  const lastText = lastUser ? lastUser.content : "";
+  const normalizedMath = lastText.replace(/×/g, "*").replace(/÷/g, "/").replace(/[−–]/g, "-");
+  const matchMath = /\(?\s*\d+(?:\.\d+)?(?:\s*[+\-*/%^]\s*\d+(?:\.\d+)?)+\s*\)?(?:\s*[+\-*/%^]\s*\d+(?:\.\d+)?)* /.exec(normalizedMath);
+  if (/\b(compute|calculate|calculator|evaluate|math)\b/i.test(lastText) && matchMath) {
+    try {
+      const expression = matchMath[0].trim();
+      const value = calculate(expression);
+      const answer = "Calculator result: " + expression + " = " + value + "\n\nI evaluated the arithmetic locally, so this calculation does not use Gemini API quota.";
+      res.status(200);
+      res.setHeader("Content-Type","text/event-stream; charset=utf-8");
+      res.setHeader("Cache-Control","no-cache, no-transform");
+      res.setHeader("Connection","keep-alive");
+      res.setHeader("X-Accel-Buffering","no");
+      res.write("data: "+JSON.stringify({candidates:[{content:{parts:[{text:answer}]}}]})+"\n\n");
+      res.write("data: [DONE]\n\n");
+      return res.end();
+    } catch {}
+  }
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return res.status(503).json({error:"AI backend not configured. Add GEMINI_API_KEY in Vercel Environment Variables."});
   const contents=[]; let total=0;
   for (const item of body.messages.slice(-MAX_MESSAGES)) {
     if (!item || !["user","assistant"].includes(item.role) || typeof item.content !== "string") return res.status(400).json({error:"Invalid chat message format."});
@@ -67,7 +86,8 @@ module.exports = async function handler(req, res) {
       if(response.ok) break;
       let err={};try{err=await response.json();}catch{}
       lastError=err?.error?.message||"The AI provider returned an error.";
-      if(![429,500,502,503].includes(response.status)) return res.status(response.status===401||response.status===403?502:response.status).json({error:"Agent provider error: "+lastError.slice(0,180)});
+      if(response.status===429 || /quota|rate.?limit|billing|exceeded your current quota/i.test(lastError)) return res.status(503).json({error:"Vanshu AI Agent's Gemini API quota is exhausted or rate-limited. The calculator can still work locally; web research and general AI tasks need available Gemini quota. Check your Google AI Studio project quota and billing."});
+      if(![500,502,503].includes(response.status)) return res.status(response.status===401||response.status===403?502:response.status).json({error:"Agent provider error: "+lastError.slice(0,180)});
       response=null;
     }
     if(!response) return res.status(503).json({error:lastError.slice(0,200)});
