@@ -1,7 +1,9 @@
 const MAX_MESSAGES = 16;
 const MAX_MESSAGE_LENGTH = 8000;
 const MAX_TOTAL_LENGTH = 24000;
-const MODELS = ["gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite"];
+// Start with a lighter model. Try alternatives if a model is overloaded or slow.
+const MODELS = ["gemini-3.5-flash-lite", "gemini-3.6-flash", "gemini-3.8-flash"];
+const MODEL_TIMEOUT_MS = 12000;
 
 module.exports = async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
@@ -53,56 +55,58 @@ module.exports = async function handler(req, res) {
     generationConfig: { temperature: 0.7, maxOutputTokens: 2048 }
   };
 
-  try {
-    let lastStatus = 502;
-    let lastMessage = "The AI provider returned an error.";
+  let lastMessage = "The AI provider returned an error.";
+  let sawTimeout = false;
 
-    for (const model of MODELS) {
-      const response = await fetch(
+  for (const model of MODELS) {
+    let response;
+    let result = {};
+    try {
+      response = await fetch(
         "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent",
         {
           method: "POST",
           headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
           body: JSON.stringify(payload),
-          signal: AbortSignal.timeout(45000)
+          signal: AbortSignal.timeout(MODEL_TIMEOUT_MS)
         }
       );
-      const result = await response.json().catch(() => ({}));
-
-      if (response.ok) {
-        const reply = (result.candidates?.[0]?.content?.parts || [])
-          .map(part => part.text || "")
-          .join("")
-          .trim();
-        if (reply) return res.status(200).json({ reply, model });
-        lastStatus = 502;
-        lastMessage = "Gemini returned an empty answer.";
+      result = await response.json().catch(() => ({}));
+    } catch (error) {
+      if (error?.name === "TimeoutError" || error?.name === "AbortError") {
+        sawTimeout = true;
+        lastMessage = model + " timed out.";
         continue;
       }
-
-      lastStatus = response.status;
-      lastMessage = result?.error?.message || "The AI provider returned an error.";
-
-      // Try the next listed model when this model is temporarily overloaded.
-      const temporary = response.status === 429 || response.status === 503 ||
-        /high demand|overload|temporarily unavailable|resource exhausted/i.test(lastMessage);
-      if (!temporary) {
-        return res.status(response.status === 429 ? 429 : 502).json({
-          error: response.status === 429
-            ? "AI usage limit reached. Please wait and try again."
-            : "Gemini API error: " + lastMessage.slice(0, 220)
-        });
-      }
+      lastMessage = "Could not reach Gemini: " + (error?.message || "network error");
+      continue;
     }
 
-    return res.status(lastStatus === 429 ? 429 : 503).json({
-      error: "Gemini models are temporarily busy or unavailable. Please wait a little and try again. Details: " + lastMessage.slice(0, 160)
-    });
-  } catch (error) {
-    return res.status(502).json({
-      error: error?.name === "TimeoutError"
-        ? "The AI request timed out. Please try again."
-        : "Could not reach Gemini. Check your deployment and try again."
-    });
+    if (response.ok) {
+      const reply = (result.candidates?.[0]?.content?.parts || [])
+        .map(part => part.text || "")
+        .join("")
+        .trim();
+      if (reply) return res.status(200).json({ reply, model });
+      lastMessage = model + " returned an empty answer.";
+      continue;
+    }
+
+    lastMessage = result?.error?.message || "The AI provider returned an error.";
+
+    // Try another supported model when this one is busy or rate-limited.
+    const temporary = response.status === 429 || response.status === 503 ||
+      /high demand|overload|temporarily unavailable|resource exhausted|try again later/i.test(lastMessage);
+    if (!temporary && response.status !== 500 && response.status !== 502) {
+      return res.status(response.status === 401 || response.status === 403 ? 502 : response.status).json({
+        error: "Gemini API error: " + lastMessage.slice(0, 220)
+      });
+    }
   }
+
+  return res.status(503).json({
+    error: sawTimeout
+      ? "Gemini is taking too long right now. I tried multiple models; please wait a moment and try again."
+      : "Gemini models are temporarily busy or unavailable. Please wait a moment and try again. Details: " + lastMessage.slice(0, 140)
+  });
 };
