@@ -29,7 +29,7 @@ module.exports = async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
   res.setHeader("X-Content-Type-Options", "nosniff");
   if (req.method !== "POST") { res.setHeader("Allow", "POST"); return res.status(405).json({error:"Method not allowed."}); }
-  if (!(await requireAuth(req, res))) return;
+  if (!(await requireAuth(req, res, "agent"))) return;
   const body = req.body || {};
   if (!Array.isArray(body.messages) || !body.messages.length) return res.status(400).json({error:"Send at least one message."});
   const lastUser = [...body.messages].reverse().find(item => item && item.role === "user" && typeof item.content === "string");
