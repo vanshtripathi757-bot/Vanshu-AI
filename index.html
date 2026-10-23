@@ -236,7 +236,7 @@ footer{display:none}
  <form class="auth-card" id="authForm">
   <h2>Welcome to Vanshu AI</h2><p>Sign in to save and reopen your conversations.</p>
   <input id="authEmail" type="email" autocomplete="email" placeholder="Email address" required maxlength="254">
-  <input id="authPassword" type="password" autocomplete="current-password" placeholder="Password (at least 6 characters)" required minlength="6" maxlength="128">
+  <input id="authPassword" type="password" autocomplete="current-password" placeholder="Password (at least 8 characters)" required maxlength="128">
   <div class="auth-actions"><button type="submit" id="signInBtn">Sign in</button><button type="button" id="signUpBtn">Create account</button></div>
   <p class="auth-error" id="authError" role="status"></p>
  </form>
@@ -400,6 +400,7 @@ function setAuthBusy(busy,label){signInBtn.disabled=busy;signUpBtn.disabled=busy
 async function authRequest(action){
  const email=authEmail.value.trim(),password=authPassword.value;
  if(!email||!password){authError.textContent='Enter your email and password first.';return;}
+ if(action==='signup'&&password.length<8){showAuth('Password must be at least 8 characters.','error');authPassword.focus();return;}
  setAuthBusy(true,action==='signin'?'Signing in…':'Creating…');
  showAuth(action==='signin'?'Connecting securely…':'Creating your account…','status');
  try{
