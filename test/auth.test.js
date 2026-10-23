@@ -78,3 +78,12 @@ test("frontend sends a session bearer token to chat, agent, and speech APIs", ()
   assert.match(html, /async function apiAuthHeaders\(\)/);
   assert.equal((html.match(/\.\.\.await apiAuthHeaders\(\)/g) || []).length, 2);
 });
+
+test("message insert migration requires ownership of the linked conversation", () => {
+  const migrationPath = path.join(__dirname, "..", "supabase", "migrations", "20261023164000_enforce_message_conversation_ownership.sql");
+  const sql = fs.readFileSync(migrationPath, "utf8");
+  assert.match(sql, /ON public\.chat_messages\s+FOR INSERT\s+TO authenticated/i);
+  assert.match(sql, /owner_id = \(SELECT auth\.uid\(\)\)/i);
+  assert.match(sql, /c\.owner_id = \(SELECT auth\.uid\(\)\)/i);
+  assert.match(sql, /c\.id = chat_messages\.conversation_id/i);
+});
