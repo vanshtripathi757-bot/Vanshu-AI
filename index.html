@@ -120,6 +120,43 @@ footer{padding:4px 0 16px}
 
 <style>
 .profile-panel{position:fixed;inset:0;z-index:30;display:grid;place-items:center;box-sizing:border-box;padding:16px;background:#060912d9;backdrop-filter:blur(18px);overflow:auto;animation:authfade .25s ease-out}.profile-panel[hidden]{display:none!important}.profile-card{width:100%;max-width:480px;max-height:calc(100dvh - 32px);overflow:auto;padding:clamp(20px,5vw,30px);border:1px solid #394768;border-radius:26px;background:linear-gradient(145deg,#172137,#0b111d);box-shadow:0 30px 100px #0009;animation:authrise .35s cubic-bezier(.2,.8,.2,1)}.profile-kicker{display:inline-flex;align-items:center;gap:7px;padding:6px 10px;border:1px solid #394768;border-radius:99px;color:#b9c9ff;font-size:12px;margin-bottom:16px}.profile-card h2{font-size:clamp(25px,6vw,32px);line-height:1.15;letter-spacing:-.7px;margin:0 0 9px}.profile-card .profile-sub{color:#9ba9bf;margin:0 0 22px}.profile-field{display:block;margin:16px 0 6px;font-size:13px;font-weight:650;color:#dce6f8}.profile-card input,.profile-card select{width:100%;min-width:0;padding:13px 14px;border:1px solid #35425c;border-radius:12px;background:#0a101b;color:#eef3ff;font:inherit;outline:none}.profile-card input:focus,.profile-card select:focus{border-color:#83a9ff;box-shadow:0 0 0 3px #83a9ff20}.profile-actions{display:flex;gap:10px;margin-top:22px}.profile-actions button{flex:1;padding:13px;border:0;border-radius:12px;font:inherit;font-weight:700;cursor:pointer;transition:transform .15s,opacity .15s}.profile-actions button:active{transform:scale(.98)}.profile-save{background:linear-gradient(120deg,#80baff,#b39aff);color:#0a1020}.profile-skip{background:#202c43;color:#dce6f8;border:1px solid #394768!important}.profile-note{font-size:12px;color:#8f9cb2;margin-top:14px}.profile-error{font-size:13px;color:#ffd5dc;margin-top:12px}.account-profile{display:flex;align-items:center;gap:9px;min-width:0;max-width:48%}.profile-avatar{width:36px;height:36px;flex:0 0 36px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(135deg,#80baff,#b39aff);color:#09111e;font-weight:800}.profile-name-wrap{min-width:0}.profile-name{display:block;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:700}.profile-edit{display:block;border:0;background:transparent;color:#9aafd8;padding:0;font-size:11px;text-align:left}.account-profile #signOutBtn{flex:0 0 auto;background:#101827;border:1px solid #34415a;border-radius:10px;color:#aab7cb;padding:7px 9px;font-size:12px}@media(max-width:520px){header{gap:8px}.account-profile{max-width:58%;gap:7px}.profile-name{max-width:94px}.status{padding:6px 8px;font-size:11px;max-width:112px}.status span:last-child{overflow-wrap:anywhere}.brand{gap:8px;font-size:15px}.logo{width:34px;height:34px}.profile-actions{flex-direction:column}.profile-card{border-radius:22px}}
+
+/* Final theme pass: dark cinematic glass + electric blue/violet */
+.auth-panel{background:radial-gradient(ellipse at 50% 8%,#1a2c50b8 0,transparent 42%),radial-gradient(ellipse at 90% 95%,#37205ab0 0,transparent 38%),#060912ed;backdrop-filter:blur(20px)}
+.auth-card{position:relative;isolation:isolate;max-width:430px;padding:clamp(23px,6vw,34px);border-radius:28px;border:1px solid #354566;background:linear-gradient(155deg,#151f32f5 0%,#0d1422f7 68%,#121326f5 100%);box-shadow:0 30px 100px #0009,0 0 0 1px #9abaff08,inset 0 1px #ffffff0b}
+.auth-card:before{content:'V';display:grid;place-items:center;width:58px;height:58px;margin:0 auto 20px;border-radius:19px;background:linear-gradient(135deg,#79bdff,#a58bff);color:#0b1221;font-size:28px;font-weight:850;box-shadow:0 12px 35px #7d9dff32;animation:logo-breathe 3.8s ease-in-out infinite}
+.auth-card h2{text-align:center;font-size:clamp(27px,7vw,32px);letter-spacing:-.8px;line-height:1.15;margin:0 0 9px;background:linear-gradient(100deg,#f4f7ff 20%,#a8c8ff 65%,#c5aaff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.auth-card>p:not(.auth-error){text-align:center;font-size:14px;line-height:1.6;margin:0 0 24px;color:#9caac1}
+.auth-card input{box-sizing:border-box;width:100%;margin:12px 0;padding:15px 16px;border:1px solid #2e3c56;border-radius:14px;background:linear-gradient(145deg,#080e19,#0b1220);color:#f1f5ff;font-size:15px;outline:none;transition:border-color .2s,box-shadow .2s,background .2s}
+.auth-card input::placeholder{color:#77869f}
+.auth-card input:focus{border-color:#83aaff;background:#0d1728;box-shadow:0 0 0 4px #83aaff17,0 8px 24px #0002}
+.auth-actions{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:18px}
+.auth-actions button{min-height:48px;padding:12px 13px;border-radius:14px;border:1px solid #34435f;background:#18243a;color:#dce7fb;font-size:14px;font-weight:650;box-shadow:none;transition:transform .18s,border-color .18s,background .18s,box-shadow .18s}
+.auth-actions button:first-child{background:linear-gradient(110deg,#80c2ff,#a78bfa);color:#081120;border:0;box-shadow:0 8px 24px #819eff2a}
+.auth-actions button:hover{transform:translateY(-1px);border-color:#6c85b6}
+.auth-actions button:first-child:hover{box-shadow:0 12px 28px #819eff40;filter:brightness(1.04)}
+.auth-actions button:active{transform:scale(.98)}
+.auth-error:not(:empty){margin-top:16px!important;padding:11px 13px;border:1px solid #405274;border-radius:12px;background:#152238;color:#d5e2ff!important;font-size:13px}
+.auth-error[data-kind="error"]:not(:empty){border-color:#684957;background:#241923;color:#ffdce2!important}
+.auth-card.is-busy .auth-actions button:first-child:disabled:after{width:13px;height:13px}
+@keyframes logo-breathe{0%,100%{transform:translateY(0);box-shadow:0 12px 35px #7d9dff32}50%{transform:translateY(-3px);box-shadow:0 16px 42px #7d9dff4a}}
+/* One consistent send action */
+.composer .send,.send{position:relative;display:grid;place-items:center;flex:0 0 50px;width:50px;height:50px;min-width:50px;padding:0;border:1px solid #b4c8ff55;border-radius:17px;background:linear-gradient(135deg,#80c6ff 0%,#9d9aff 54%,#b38bff 100%);color:#091224;font-size:0;font-weight:800;box-shadow:0 7px 22px #839eff30;transition:transform .18s,filter .18s,box-shadow .18s}
+.composer .send:before,.send:before{content:'↑';font-size:28px;line-height:1;transform:translateY(-1px);transition:transform .18s}
+.composer .send:hover:not(:disabled),.send:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.06);box-shadow:0 11px 27px #839eff45}
+.composer .send:hover:not(:disabled):before,.send:hover:not(:disabled):before{transform:translateY(-3px)}
+.composer .send:active:not(:disabled),.send:active:not(:disabled){transform:scale(.94)}
+.composer .send:disabled:before,.send:disabled:before{content:'';width:18px;height:18px;border:2px solid #101529;border-right-color:transparent;border-radius:50%;animation:spin .7s linear infinite}
+.composer .send:disabled,.send:disabled{opacity:.65;cursor:wait;box-shadow:none}
+/* New chat action belongs in the drawer, not over the message composer */
+.menu-new{position:relative;justify-content:flex-start;min-height:49px;padding:13px 15px;border-radius:15px;border:1px solid #526b99;background:linear-gradient(110deg,#1a2d4b,#252044);color:#eef3ff;box-shadow:inset 0 1px #ffffff0b,0 8px 25px #0002;font-weight:700;transition:transform .18s,border-color .18s,box-shadow .18s,background .18s}
+.menu-new span:first-child{display:grid;place-items:center;width:27px;height:27px;border-radius:9px;background:linear-gradient(135deg,#80c6ff,#b39aff);color:#101529;font-size:22px;line-height:1}
+.menu-new:hover{transform:translateY(-1px);border-color:#8eaaff;box-shadow:0 10px 26px #789dff20}
+.menu-new:active{transform:scale(.985)}
+.clear{border:1px solid #34425d;border-radius:12px;background:#111a2a;color:#c4d2eb;padding:9px 12px;font-size:13px;transition:background .18s,border-color .18s,transform .18s}
+.clear:hover{background:#1b2941;border-color:#6b83b4}
+@media(max-width:520px){.auth-card{padding:24px 20px;border-radius:24px}.auth-card:before{width:52px;height:52px;border-radius:17px;margin-bottom:17px}.auth-actions{grid-template-columns:1fr}.auth-actions button{min-height:46px}.composer .send,.send{flex-basis:48px;width:48px;height:48px;min-width:48px;border-radius:16px}}
+
 </style>
 <div class="profile-panel" id="profilePanel" hidden>
  <form class="profile-card" id="profileForm">
