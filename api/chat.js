@@ -15,7 +15,7 @@ module.exports = async function handler(req, res) {
 
   if (!(await requireAuth(req, res, "chat"))) return;
 
-  const apiKey = process.env.OPENROUTER_API_KEY || process.env.INTELLIGENCE_API_KEY;
+  const apiKey = process.env.OPENROUTER_API_KEY || process.env.INTELLIGENCE_API_KEY || process.env.AGENTIC_API_KEY;
   if (!apiKey) {
     return res.status(503).json({ error: "Intelligence backend not configured. Add OPENROUTER_API_KEY in Vercel, then redeploy." });
   }
@@ -73,7 +73,7 @@ module.exports = async function handler(req, res) {
         "X-Title": "Vanshu AI"
       },
       body: JSON.stringify({
-        model: process.env.OPENROUTER_FAST_MODEL || process.env.INTELLIGENCE_MODEL || process.env.OPENROUTER_MODEL || "nvidia/nemotron-3.5-lightning:free",
+        model: process.env.OPENROUTER_CHAT_MODEL || process.env.OPENROUTER_MODEL || process.env.OPENROUTER_FAST_MODEL || process.env.INTELLIGENCE_MODEL || "nvidia/nemotron-3.5-lightning:free",
         messages: [{ role: "system", content: system }, ...messages],
         temperature: 0.3,
         max_tokens: 700,
