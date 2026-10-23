@@ -32,8 +32,8 @@ main{max-width:760px;padding:22px 0 8px}
 .composer{align-items:center;gap:10px;padding:9px 9px 9px 17px;border:1px solid #2e3b55;border-radius:24px;background:linear-gradient(145deg,#111827,#0e1420);box-shadow:0 12px 35px #0003;transition:border-color .2s,box-shadow .2s}
 .composer:focus-within{border-color:#779cff;box-shadow:0 0 0 3px #789cff16,0 12px 35px #0003}
 textarea{min-height:34px;max-height:150px;padding:7px 0}
-.send{position:relative;flex:0 0 48px;width:48px;height:48px;min-width:48px;border-radius:17px;display:grid;place-items:center;background:linear-gradient(135deg,#8cc5ff,#b09aff);color:#101529;font-size:0;box-shadow:0 5px 18px #829bff28;transition:transform .16s,filter .16s,box-shadow .16s;cursor:pointer}
-.send::before{content:'↑';font-size:25px;line-height:1;font-weight:650;transform:translateY(-1px)}
+.send{position:relative;flex:0 0 76px;width:76px;height:48px;min-width:76px;border-radius:15px;display:grid;place-items:center;background:linear-gradient(115deg,#83c4ff,#a994ff);color:#101529;font-size:14px;font-weight:750;letter-spacing:.01em;box-shadow:0 5px 18px #829bff28;transition:transform .16s,filter .16s,box-shadow .16s;cursor:pointer}
+.send::before{content:'Send';font-size:14px;line-height:1;font-weight:750}
 .send:hover:not(:disabled){filter:brightness(1.08);transform:translateY(-2px);box-shadow:0 8px 22px #829bff38}
 .send:active:not(:disabled){transform:scale(.94)}
 .send:disabled{opacity:.6;cursor:wait;box-shadow:none}
@@ -66,7 +66,7 @@ footer{padding:4px 0 16px}
  .user .bubble{border-radius:16px 5px 16px 16px}
  .composer-wrap{padding-top:10px}
  .composer{padding:7px 7px 7px 14px;border-radius:21px}
- .send{width:46px;height:46px;min-width:46px;flex-basis:46px;border-radius:16px}
+ .send{width:72px;height:46px;min-width:72px;flex-basis:72px;border-radius:15px;font-size:13px}
  .welcome{margin:auto 0 18px}
  .orb{width:54px;height:54px;border-radius:18px;font-size:24px;margin-bottom:15px}
  h1{letter-spacing:-1px}
@@ -78,9 +78,8 @@ footer{padding:4px 0 16px}
 
 
 /* Workspace menu: keep the chat canvas uncluttered */
-.brand-menu{border:0;background:transparent;color:var(--text);padding:0;cursor:pointer;text-align:left}
-.brand-chevron{font-size:20px;color:#9eafd0;transition:transform .2s}
-.brand-menu[aria-expanded="true"] .brand-chevron{transform:rotate(180deg)}
+.brand-menu{border:0;background:transparent;color:var(--text);padding:0;cursor:pointer;text-align:left;flex:0 0 auto;gap:0;min-width:0}.brand-menu .logo{width:44px;height:44px;border-radius:15px;box-shadow:0 6px 22px #8b9bff22;transition:transform .2s,box-shadow .2s}.brand-menu:hover .logo{transform:translateY(-1px);box-shadow:0 9px 26px #8b9bff35}
+.brand-title{display:none!important}
 .status{display:none!important}
 #accountBar{display:none!important}
 .menu-shade{position:fixed;inset:0;z-index:39;background:#02050bd1;backdrop-filter:blur(5px);animation:authfade .18s ease-out}
@@ -176,9 +175,9 @@ footer{padding:4px 0 16px}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-</head><body><div class="app"><header><button class="brand brand-menu" id="menuToggle" type="button" aria-label="Open Vanshu AI menu" aria-expanded="false"><div class="logo">V</div><span>Vanshu AI</span><span class="brand-chevron">⌄</span></button><div id="menuShade" class="menu-shade" hidden></div><aside id="appMenu" class="app-menu" aria-label="Vanshu AI menu" hidden><div class="menu-top"><div><strong id="menuGreeting">Your workspace</strong><small>Chats and profile</small></div><button type="button" id="closeMenu" class="menu-close" aria-label="Close menu">×</button></div><button type="button" id="newChatMenu" class="menu-action menu-new"><span>＋</span><span>New chat</span></button><div class="menu-section-title">RECENT CHATS</div><div id="menuHistory" class="menu-history"><p class="menu-empty">Your recent chats will appear here.</p></div><div class="menu-bottom"><div class="menu-profile-row"><div class="profile-avatar" id="menuAvatar">V</div><div class="menu-profile-info"><strong id="menuProfileName">Your profile</strong><small id="menuProfileRole">Personal workspace</small></div></div><button type="button" id="menuEditProfile" class="menu-action">Edit profile</button><button type="button" id="menuSignOut" class="menu-action menu-signout">Sign out</button></div></aside><span id="statusText" hidden>Assistant ready</span><div id="accountBar" hidden><span id="accountEmail" hidden></span><span id="profileAvatar" hidden>V</span><span id="profileDisplayName" hidden>Your profile</span><button id="editProfileBtn" type="button" hidden>Edit profile</button><button id="signOutBtn" type="button" hidden>Sign out</button></div></header><main>
+</head><body><div class="app"><header><button class="brand brand-menu" id="menuToggle" type="button" aria-label="Open Vanshu AI menu" aria-expanded="false"><div class="logo">V</div><span class="brand-title">Vanshu AI</span></button><div id="menuShade" class="menu-shade" hidden></div><aside id="appMenu" class="app-menu" aria-label="Vanshu AI menu" hidden><div class="menu-top"><div><strong id="menuGreeting">Your workspace</strong><small>Chats and profile</small></div><button type="button" id="closeMenu" class="menu-close" aria-label="Close menu">×</button></div><button type="button" id="newChatMenu" class="menu-action menu-new"><span>＋</span><span>New chat</span></button><div class="menu-section-title">RECENT CHATS</div><div id="menuHistory" class="menu-history"><p class="menu-empty">Your recent chats will appear here.</p></div><div class="menu-bottom"><div class="menu-profile-row"><div class="profile-avatar" id="menuAvatar">V</div><div class="menu-profile-info"><strong id="menuProfileName">Your profile</strong><small id="menuProfileRole">Personal workspace</small></div></div><button type="button" id="menuEditProfile" class="menu-action">Edit profile</button><button type="button" id="menuSignOut" class="menu-action menu-signout">Sign out</button></div></aside><span id="statusText" hidden>Assistant ready</span><div id="accountBar" hidden><span id="accountEmail" hidden></span><span id="profileAvatar" hidden>V</span><span id="profileDisplayName" hidden>Your profile</span><button id="editProfileBtn" type="button" hidden>Edit profile</button><button id="signOutBtn" type="button" hidden>Sign out</button></div></header><main>
 <section class="welcome" id="welcome"><div class="orb">✦</div><h1>Think it. Ask it.<br><span class="gradient">Build with AI.</span></h1><p class="subtitle">Your personal AI assistant for learning, coding, ideas, and everyday questions.</p><div class="suggestions"><button class="suggestion" data-prompt="Explain a difficult topic to me in simple words.">Learn something<small>Break down a tricky concept</small></button><button class="suggestion" data-prompt="Help me plan and build a small web app step by step.">Build a project<small>Turn an idea into a plan</small></button><button class="suggestion" data-prompt="Give me a challenging maths puzzle and let me solve it.">Challenge me<small>Try a logic or maths puzzle</small></button><button class="suggestion" data-prompt="Help me improve this code and explain why: ">Improve my code<small>Debug, explain, and refine</small></button></div></section>
-<div id="messages" aria-live="polite"></div><div class="composer-wrap"><div class="toolbar"><span>Ask Vanshu AI anything</span></div><form class="composer" id="chatForm"><textarea id="prompt" rows="1" maxlength="8000" placeholder="Message Vanshu AI..." aria-label="Message Vanshu AI"></textarea><button class="send" id="sendBtn" type="submit" aria-label="Send message">↑</button></form><div class="footnote">AI can make mistakes. Verify important information.</div></div></main><footer>Vanshu AI · Powered by Gemini</footer></div>
+<div id="messages" aria-live="polite"></div><div class="composer-wrap"><div class="toolbar"><span>Ask Vanshu AI anything</span></div><form class="composer" id="chatForm"><textarea id="prompt" rows="1" maxlength="8000" placeholder="Message Vanshu AI..." aria-label="Message Vanshu AI"></textarea><button class="send" id="sendBtn" type="submit" aria-label="Send message"></button></form><div class="footnote">AI can make mistakes. Verify important information.</div></div></main><footer>Vanshu AI · Powered by Gemini</footer></div>
 <script>
 (()=> {
 const SUPABASE_URL = "https://whogvqksufltywnexkyx.supabase.co";
