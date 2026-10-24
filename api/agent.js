@@ -76,9 +76,15 @@ module.exports = async function handler(req, res) {
   // Keep optional web-search billing opt-in: the default agent run uses no search add-on.
   const webSearchEnabled = process.env.VANSHU_AGENT_WEB_SEARCH_ENABLED === "true";
   const isComplexTask = wantsSearch || /\b(code|coding|debug|fix|build|create|website|app|project|multi[- ]?step|analy[sz]e|compare|plan|research)\b/i.test(lastText);
-  const baseModel = isComplexTask
+  const configuredModel = isComplexTask
     ? (process.env.OPENROUTER_AGENT_MODEL || process.env.AGENTIC_MODEL || process.env.OPENROUTER_MODEL || process.env.OPENROUTER_FAST_MODEL || "nvidia/nemotron-3.5-lightning:free")
     : (process.env.OPENROUTER_AGENT_MODEL || process.env.OPENROUTER_MODEL || process.env.OPENROUTER_FAST_MODEL || "nvidia/nemotron-3.5-lightning:free");
+  // Zero-budget guard: unless explicitly opted out, never send agent requests to a model
+  // that is not explicitly marked as free by OpenRouter's model ID convention.
+  const requireFreeModel = process.env.VANSHU_AGENT_FREE_ONLY !== "false";
+  const baseModel = requireFreeModel && !configuredModel.endsWith(":free")
+    ? "nvidia/nemotron-3.5-lightning:free"
+    : configuredModel;
   if (wantsSearch && !webSearchEnabled) {
     // Do not silently imply that live research happened when the optional search add-on is off.
     messages.unshift({role:"user",content:"Important capability constraint: live web search is disabled in this deployment to prioritize zero cost. For requests needing current information, clearly say you cannot verify live updates in this run; do not invent current facts, publication dates, citations, or links. You may answer stable background knowledge with an appropriate caveat."});
