@@ -73,10 +73,16 @@ module.exports = async function handler(req, res) {
     {type:"function",function:{name:"make_plan",description:"Create a concise ordered plan for a task.",parameters:{type:"object",properties:{goal:{type:"string"},steps:{type:"array",items:{type:"string"}}},required:["goal","steps"]}}}
   ];
   const wantsSearch = /search|research|latest|current|recent|sources|source links|web|news|today|this week/i.test(lastText);
+  // Keep optional web-search billing opt-in: the default agent run uses no search add-on.
+  const webSearchEnabled = process.env.VANSHU_AGENT_WEB_SEARCH_ENABLED === "true";
   const isComplexTask = wantsSearch || /\b(code|coding|debug|fix|build|create|website|app|project|multi[- ]?step|analy[sz]e|compare|plan|research)\b/i.test(lastText);
   const baseModel = isComplexTask
     ? (process.env.OPENROUTER_AGENT_MODEL || process.env.AGENTIC_MODEL || process.env.OPENROUTER_MODEL || process.env.OPENROUTER_FAST_MODEL || "nvidia/nemotron-3.5-lightning:free")
     : (process.env.OPENROUTER_AGENT_MODEL || process.env.OPENROUTER_MODEL || process.env.OPENROUTER_FAST_MODEL || "nvidia/nemotron-3.5-lightning:free");
+  if (wantsSearch && !webSearchEnabled) {
+    // Do not silently imply that live research happened when the optional search add-on is off.
+    messages.unshift({role:"user",content:"Important capability constraint: live web search is disabled in this deployment to prioritize zero cost. For requests needing current information, clearly say you cannot verify live updates in this run; do not invent current facts, publication dates, citations, or links. You may answer stable background knowledge with an appropriate caveat."});
+  }
   const executed = []; let finalText = "";
   // Keep multi-round agent work inside the configured 60-second serverless limit.
   const deadline = Date.now() + 52000;
@@ -92,7 +98,7 @@ module.exports = async function handler(req, res) {
     try {
       const requestTools = round === MAX_TOOL_ROUNDS - 1
         ? []
-        : wantsSearch && round === 0
+        : wantsSearch && webSearchEnabled && round === 0
           ? [...tools, {type:"openrouter:web_search",parameters:{engine:"auto",max_results:3,max_total_results:5,max_uses:1,search_context_size:"low"}}]
           : tools;
       const requestBody = {model:baseModel,messages:[{role:"system",content:system},...messages],tools:requestTools,tool_choice:requestTools.length ? "auto" : "none",temperature:0.2,max_tokens:1200,max_tool_calls:requestTools.length ? (wantsSearch ? 1 : MAX_TOOL_CALLS_PER_ROUND) : undefined};
