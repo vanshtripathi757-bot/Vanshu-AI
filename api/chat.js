@@ -117,9 +117,11 @@ module.exports = async function handler(req, res) {
   const decoder = new TextDecoder();
   let buffer = "";
   let finished = false;
+  let sentAnyText = false;
 
   function sendText(piece) {
     if (!piece) return;
+    sentAnyText = true;
     res.write("data: " + JSON.stringify({ candidates: [{ content: { parts: [{ text: piece }] } }] }) + "\n\n");
   }
 
@@ -157,7 +159,41 @@ module.exports = async function handler(req, res) {
         break;
       }
     }
-    res.write("data: [DONE]\n\n");
+    if (!sentAnyText) {
+      // Some upstream providers can return a successful but empty stream.
+      // Retry once without streaming so the user receives an answer or a useful error.
+      try {
+        const fallback = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + apiKey,
+            "HTTP-Referer": "https://vanshu-ai.vercel.app",
+            "X-Title": "Vanshu AI"
+          },
+          body: JSON.stringify({
+            model: process.env.OPENROUTER_CHAT_MODEL || process.env.OPENROUTER_MODEL || process.env.OPENROUTER_FAST_MODEL || process.env.INTELLIGENCE_MODEL || "nvidia/nemotron-3.5-lightning:free",
+            messages: [{ role: "system", content: system }, ...messages],
+            temperature: 0.3,
+            max_tokens: 700,
+            stream: false
+          }),
+          signal: controller.signal
+        });
+        if (fallback.ok) {
+          const data = await fallback.json();
+          const answer = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+          const text = typeof answer === "string" ? answer : Array.isArray(answer) ? answer.map(part => typeof part === "string" ? part : String(part && part.text || "")).join("") : "";
+          if (text.trim()) sendText(text);
+          else res.write("data: " + JSON.stringify({ error: "The AI provider returned an empty answer. Please try again." }) + "\\n\\n");
+        } else {
+          res.write("data: " + JSON.stringify({ error: "The AI provider returned an empty stream and the retry failed (" + fallback.status + "). Please try again." }) + "\\n\\n");
+        }
+      } catch {
+        res.write("data: " + JSON.stringify({ error: "The AI provider returned an empty stream. Please try again." }) + "\\n\\n");
+      }
+    }
+    res.write("data: [DONE]\\n\\n");
     return res.end();
   } catch {
     try { await reader.cancel(); } catch {}
